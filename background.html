@@ -1,78 +1,7 @@
 <html>
 	<head>
 		<script src="js/jquery-1.4.2.min.js"></script>
-		<script>
-			var db = window.openDatabase("analyseMe", "0.1", "Analyse Me Data", 1024*1024);
-			if(!db) {
-				localStorage['err'] = "database connection failed";
-			} else {
-				localStorage['err'] = null;
-			}
-
-			/*
-			 * try to create the db if it doesn't exist
-			 */
-			function initDB() {
-				if(!db) return;
-				db.transaction(
-					function(tx) {
-						tx.executeSql("SELECT COUNT(*) FROM analyseMe", [], null, 
-							function(tx, error) {
-								localStorage['err'] = "failed to select:" + error;
-								tx.executeSql("CREATE TABLE analyseMe(id INTEGER PRIMARY KEY AUTOINCREMENT, host TEXT NOT NULL, date TEXT NOT NULL, hour TINYINT NOT NULL, count INTEGER DEFAULT '0')", [], null, 
-									function(tx, error) {
-										localStorage['err'] = "failed to create SQL table:" + JSON.stringify(error);
-									}
-								);
-							}
-						);
-					}
-				);
-			}
-			/*
-			 * increment the count in a given row. If the row doesn't exit, insert it
-			 */
-			function updateRow(rowObj) {
-				if(!db) return;
-					db.transaction(function(tx) {
-						var sqlStr = "SELECT count FROM analyseMe WHERE host='" + 
-							rowObj['host'] + "' AND date='" + rowObj['date'] + "' AND hour='" + rowObj['hour'] + "'";
-						tx.executeSql(sqlStr, 
-							[], 
-							function(tx, result) { //select succeed
-								if(result.rows.length == 0) {
-									insertRow(rowObj);
-								} else {
-									var count = result.rows.item(0)['count'] + 1;
-									var sqlStr = "UPDATE analyseMe SET count='" + count + "' WHERE host='" + 
-										rowObj['host'] + "' AND date='" + rowObj['date'] + "' AND hour='" + rowObj['hour'] + "'";
-										tx.executeSql(sqlStr, [], null,
-										function(tx, error) {
-											localStorage['err'] = "failed to update SQL table:" + JSON.stringify(error);
-										}); //end execute update
-								} //close else
-							},
-							function(tx, error) { //select error
-								localStorage['err'] = "failed to execute select SQL table:" + JSON.stringify(error);
-							}
-						); //end execute select
-					}); //end db transaction
-				}
-
-			function insertRow(rowObj) {
-				if(!db) return;
-					db.transaction(function(tx) {
-						tx.executeSql("INSERT INTO analyseMe (host, date, hour, count) VALUES ('" + 
-							rowObj['host'] + "','" + rowObj['date'] + "','" + rowObj['hour'] + "', '1')", 
-							[], 
-							null,
-						function(tx, error) {
-							localStorage['err'] = "failed to load SQL table:" + JSON.stringify(error);
-						});
-					});
-				}
-
-		</script>
+		<script src="js/db.js"></script>
 	</head>
 	<body>
 		<div id="data">
@@ -90,13 +19,13 @@
 							rowObj['host'] = urlArray[2].replace(/^www\./, '');
 							rowObj['date'] = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
 							rowObj['hour'] = d.getHours();
-							updateRow(rowObj);
+							DB.updateRow(rowObj);
 						}
 					}
 				});
 			});
 		}
-			initDB();
+			DB.initDB();
 			window.setInterval('fetch_url()', 10000);
 		</script>
 	</body>

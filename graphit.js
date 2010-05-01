@@ -1,7 +1,10 @@
+/*
+ * depends on js/DB.js
+ */
 bar = {};
 line = {};
 
-graphit = function (names,values,data1) {
+var graphit = function (names,values,data1) {
 
 	document.getElementById('overallUsage').width = document.getElementById('overallUsage').width;
 	document.getElementById('hourUsage').width = document.getElementById('hourUsage').width;
@@ -37,6 +40,7 @@ graphit = function (names,values,data1) {
 	line.Draw();
 };
 
+
 window.onload = function () {
 	data1 = [];
 	
@@ -50,7 +54,7 @@ window.onload = function () {
 		}
 	}
 	
-	fetchBest(10, function (data) {
+	DB.fetchBest(10, function (data) {
 		graphit (data.hosts,[data.counts],data1);
 	});
 	
