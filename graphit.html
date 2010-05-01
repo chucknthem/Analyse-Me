@@ -44,7 +44,7 @@ body {
 		  }
 		  callback(data);
 	   }, function(tx, error) {
-				localStorage['err'] = "select error:" + error;
+				localStorage['err'] = "select error:" + error['message'];
 			}
 	   );
 	});
