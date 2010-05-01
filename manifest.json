@@ -1,0 +1,13 @@
+{
+	"name": "Analyse Me",
+	"version": "1.0",
+	"browser_action": {
+		"default_icon": "icon.png",
+		"popup": "popup.html",
+		"background": "background.html"
+	},
+	"permissions": [
+		"tabs",
+		"windows"
+	]
+}
