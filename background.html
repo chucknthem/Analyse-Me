@@ -62,8 +62,8 @@
 			function insertRow(rowObj) {
 				if(!db) return;
 					db.transaction(function(tx) {
-						tx.executeSql("INSERT INTO analyseMe (host, date, hour) VALUES ('" + 
-							rowObj['host'] + "','" + rowObj['date'] + "','" + rowObj['hour'] + "')", 
+						tx.executeSql("INSERT INTO analyseMe (host, date, hour, count) VALUES ('" + 
+							rowObj['host'] + "','" + rowObj['date'] + "','" + rowObj['hour'] + "', '1')", 
 							[], 
 							null,
 						function(tx, error) {
