@@ -3,17 +3,17 @@
 		<script src="js/jquery-1.4.2.min.js"></script>
 	</head>
 	<body>
-		
 		<div id="data">
 		</div>
 		<script>
+			var i = 0;
 			var fetch_url = function() {
-				//$('#data').append(JSON.stringify(chrome));
 				chrome.tabs.getSelected(null, function(tab) {
-					$('#data').append(tab.url);
+					//localStorage['cur_url'] = tab.url;
+					localStorage['cur_url'] = i++;
 				});
 			}
-		setInterval(fetch_url(), 1000);
+			setInterval('fetch_url()', 50);
 		</script>
 	</body>
 </html>
