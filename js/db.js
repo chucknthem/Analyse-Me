@@ -51,6 +51,18 @@ var DB = (function() {
 					}
 				);
 			},
+			'insertRow':function(rowObj) {
+				if(!this.db) return;
+					this.db.transaction(function(tx) {
+						tx.executeSql("INSERT INTO analyseMe (host, date, hour, count) VALUES ('" + 
+							rowObj['host'] + "','" + rowObj['date'] + "','" + rowObj['hour'] + "', '1')", 
+							[], 
+							null,
+						function(tx, error) {
+							localStorage['err'] = "failed to load SQL table:" + JSON.stringify(error);
+						});
+					});
+				},
 
 			/*
 			 * increment the count in a given row. If the row doesn't exit, insert it
@@ -64,7 +76,7 @@ var DB = (function() {
 							[], 
 							function(tx, result) { //select succeed
 								if(result.rows.length == 0) {
-									insertRow(rowObj);
+									f.insertRow(rowObj);
 								} else {
 									var count = result.rows.item(0)['count'] + 1;
 									var sqlStr = "UPDATE analyseMe SET count='" + count + "' WHERE host='" + 
@@ -80,22 +92,7 @@ var DB = (function() {
 							}
 						); //end execute select
 					}); //end db transaction
-				},
-
-
-			'insertRow': function(rowObj) {
-				if(!db) return;
-					db.transaction(function(tx) {
-						tx.executeSql("INSERT INTO analyseMe (host, date, hour, count) VALUES ('" + 
-							rowObj['host'] + "','" + rowObj['date'] + "','" + rowObj['hour'] + "', '1')", 
-							[], 
-							null,
-						function(tx, error) {
-							localStorage['err'] = "failed to load SQL table:" + JSON.stringify(error);
-						});
-					});
 				}
-		
 	};
 	f.connectDB();
 	return f;

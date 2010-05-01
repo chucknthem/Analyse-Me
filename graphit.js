@@ -58,6 +58,6 @@ window.onload = function () {
 		graphit (data.hosts,[data.counts],data1);
 	});
 	
-	window.setInterval ('	fetchBest(10, function (data) {graphit (data.hosts,[data.counts],data1);});;',10000);
+	window.setInterval ('	DB.fetchBest(10, function (data) {graphit (data.hosts,[data.counts],data1);});;',10000);
 	
 }
