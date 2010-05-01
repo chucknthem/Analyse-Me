@@ -2,20 +2,12 @@
 	<head>
 		<script src="js/jquery-1.4.2.min.js"></script>
 		<script src="js/db.js"></script>
+		<script src="popup.js"></script>
+		<script src="RGraph/libraries/RGraph.common.js" ></script>
+		<script src="RGraph/libraries/RGraph.hbar.js" ></script>
 	</head>
 	<body>
-		<div id="data"></div>	
+		<canvas id="overallUsage" width="400" height="300"></canvas>
 		<button onclick="chrome.tabs.create ({'url':'graphit.html'});">GraphIt</button>
-		<script>
-			function appender(data) {
-				for(var i = 0; i < data['hosts'].length; i++) {
-					$('#data').append(data['hosts'][i]);
-					$('#data').append(data['counts'][i]);
-					$('#data').append('<br />');
-				}
-			}
-			DB.fetchBest(10, appender);
-
-		</script>
 	</body>
 </html>
