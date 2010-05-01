@@ -1,0 +1,664 @@
+<?php
+    require('common.php');
+    ob_start('ob_gzhandler');
+?>
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    
+    <!--
+        /**
+        * o------------------------------------------------------------------------------o
+        * | This file is part of the RGraph package - you can learn more at:             |
+        * |                                                                              |
+        * |                          http://www.rgraph.net                               |
+        * |                                                                              |
+        * | This package is licensed under the RGraph license. For all kinds of business |
+        * | purposes there is a small one-time licensing fee to pay and for non          |
+        * | commercial  purposes it is free to use. You can read the full license here:  |
+        * |                                                                              |
+        * |                      http://www.rgraph.net/LICENSE.txt                       |
+        * o------------------------------------------------------------------------------o
+        */
+    -->
+
+    <title>RGraph: HTML5 canvas graph library based on the HTML5 canvas tag</title>
+
+    <link rel="stylesheet" href="css/website.css" type="text/css" media="screen" />
+    <link rel="icon" type="image/png" href="images/favicon.png">
+
+    <meta name="verify-v1" content="5y8rHGO/NPFDYU8jBgyT3qI7CSiEoPaeB+4x2TXan+4=" />
+    <meta name="keywords" content="html5 canvas graph rgraph javascript line chart bar graphs" />
+    <meta name="description" content="RGraph: HTML5 canvas graph library for websites on all platforms" />
+    
+    <script src="libraries/RGraph.common.js" ></script>
+    <script src="libraries/RGraph.bar.js" ></script>
+    <script src="libraries/RGraph.funnel.js" ></script>
+    <script src="libraries/RGraph.line.js" ></script>
+    <script src="libraries/RGraph.pie.js" ></script>
+    <script src="libraries/RGraph.modaldialog.js" ></script>
+    <!--[if IE]><script src="excanvas/excanvas.compressed.js"></script><![endif]-->
+    
+    <style>
+        .RGraph_zoom_window {
+            border-radius: 0 ! important;
+            -moz-border-radius: 0 ! important;
+            -webkit-border-radius: 0 ! important;
+            box-shadow: 0 0 15px gray ! important;
+            -moz-box-shadow: 0 0 15px gray ! important;
+            -webkit-box-shadow: 0 0 15px gray ! important;
+             border: 1px gray solid ! important;
+        }
+
+        .RGraph_zoomed_canvas {
+            -webkit-box-shadow: 0 0 15px gray ! important;
+        }
+        .RGraph_zoomed_canvas {
+        }
+    </style>
+
+    <script>
+        window.onload = function (e)
+        {
+            if (document.all) {
+                CreateLineChart();
+                CreateBarChart();
+                CreatePieChart();
+                CreateFunnelChart();
+            }
+        }
+        
+        function Go(url)
+        {
+            location.href = url;
+            return false;
+        }
+        
+        function HideTwitterDIV ()
+        {
+            document.getElementById("twitter_div").style.display = 'none';
+        }
+
+        function ShowTwitterDIV (e)
+        {
+            var e = RGraph.FixEventObject(document.all ? event : e);
+            var div = document.getElementById("twitter_div");
+
+            div.style.display = 'block';
+            div.style.left = e.pageX + 'px';
+            div.style.top  = (e.pageY - parseInt(div.offsetHeight) ) + 'px';
+
+            e.cancelBubble = true;
+            e.stopPropagation = true;
+
+            return false;
+        }
+
+        window.addEventListener('click', HideTwitterDIV, false);
+    </script>
+
+</head>
+<body>
+
+    <div id="title">
+        <div id="image">
+            <br />
+            <img src="images/logo.png" align="absmiddle" alt="RGraph: HTML5 canvas graphing library" width="64" height="64" />
+        </div>
+        
+        <div id="text">
+            <h1>RGraph: HTML5 canvas graph library based on the HTML5 canvas tag</h1>
+            <i style="position: relative; top: -20px; left: 5px">Interactive javascript canvas graphs using the <b>HTML5 canvas</b> tag for all platforms</i>
+
+            <br />
+            
+            <a href="#download" style="text-decoration: none">
+                <img src="images/download-stable-sml.png" width="32" height="32" alt="Download the beta version" border="0" align="absmiddle" />
+                <b style="text-decoration: underline">Download the stable version</b>
+            </a>
+
+            <a href="#download" style="text-decoration: none">
+                <img src="images/download-beta-sml.png" width="32" height="32" alt="Download the beta version" border="0" align="absmiddle" />
+                <b style="text-decoration: underline">Download the beta version</b>
+            </a>
+
+            &nbsp;
+
+            <a href="http://del.icio.us/post?v=4&noui&jump=close&url=http://www.rgraph.net" target="_blank">
+                <img src="images/delicious.png" alt="Bookmark with delicious" width="22" height="22" border="0" align="absmiddle" />
+            </a>
+
+            <a href="http://www.stumbleupon.com/submit?url=http://www.rgraph.net" target="_blank">
+                <img src="images/stumble.png" alt="Stumble! this site" width="22" height="22" border="0" align="absmiddle" />
+            </a>
+
+            <a href="" target="_blank" onclick="return ShowTwitterDIV(event)">
+                <img src="images/twitter.png" alt="tweet this site" width="22" height="22" border="0" align="absmiddle" />
+            </a>
+            
+            <a href="mailto:buzz@gmail.com?subject=RGraph:%20A%20HTML5%20canvas%20graph%20library%20based%20on%20the%20HTML5%20canvas%20tag - http://www.rgraph.net&fs=1">
+                <img src="images/buzz.png" width="22" height="19" alt="Buzz this!" border="0" style="position: relative; top: 3px" />
+            </a>
+
+        </div>
+    </div>
+
+    <div style="float: right; width: 480px; text-align: center">
+        <canvas id="myLine" width="480" height="220">[Please wait for the onload event to fire...]</canvas>
+        <script async>
+            /**
+            * Create the line graph
+            */
+            function CreateLineChart ()
+            {
+                var data1 = [14,13,16,18,14,12,11,14,19,18,17,18];
+                var data2 = [11,12,14,12,11,13,13,15,14,15,13,14];
+        
+                var myLine = new RGraph.Line('myLine', data1, data2);
+                myLine.Set('chart.colors', ['red', 'black']);
+                myLine.Set('chart.units.post', '%');
+                myLine.Set('chart.tickmarks', null);
+                myLine.Set('chart.shadow', true);
+                myLine.Set('chart.shadow.offsety', 2);
+                myLine.Set('chart.shadow.offsetx', 2);
+                myLine.Set('chart.shadow.blur', 15);
+                myLine.Set('chart.linewidth', 5);
+                myLine.Set('chart.hmargin', 10);
+                myLine.Set('chart.background.grid.width', 1);
+                myLine.Set('chart.background.grid.color', '#ddd');
+                myLine.Set('chart.background.barcolor1', 'white');
+                myLine.Set('chart.background.barcolor2', 'white');
+                myLine.Set('chart.title', 'An example line chart with context menu and zoom');
+                myLine.Set('chart.gutter', 35);
+                myLine.Set('chart.noaxes', true);
+                myLine.Set('chart.yaxispos', false);
+                myLine.Set('chart.ymin', 10);
+                
+                if (!document.all) {
+                    myLine.Set('chart.zoom.frames', 15);
+                    myLine.Set('chart.zoom.delay', 20);
+                    myLine.Set('chart.zoom.hdir', 'left');
+                    myLine.Set('chart.zoom.vdir', 'center');
+                    myLine.Set('chart.zoom.mode', 'thumbnail');
+                    myLine.Set('chart.zoom.factor', 2);
+                    
+                    // This context menu facilitates full canvas zoom
+                    myLine.Set('chart.contextmenu', [['Zoom in', RGraph.Zoom], ['Show modal dialog', function() {ModalDialog.Show('myDialog', 300);}],['Cancel', function () {}]]);
+                } else {
+                    myLine.Set('chart.contextmenu', [['Show modal dialog', function() {ModalDialog.Show('myDialog', 300);}],['Cancel', function () {}]]);
+                }
+    
+                myLine.Draw();
+            }
+            
+            if (!document.all) CreateLineChart();
+        </script>
+
+        <canvas id="myBar" width="475" height="200">[Please wait for the onload event to fire...]</canvas>
+        <script async>
+            function CreateBarChart ()
+            {
+                var bar = new RGraph.Bar('myBar', [[23,25], [30,25], [27,28], [26,18], [31,20], [39,28], [27,29], [26,23]]);
+    
+                bar.Set('chart.tooltips', ['<b>2000</b><br />Girls only had an average<br />year in 2000',
+                                      '<b>2000</b><br />Boys had a slightly better<br />year in 2000',
+                                      '<b>2001</b><br />Girls had a good year',
+                                      '<b>2001</b><br />Boys had an average year',
+                                      '<b>2002</b><br />Both girls and boys had an average year',
+                                      '<b>2002</b><br />Both girls and boys had an average year',
+                                      '<b>2003</b><br />Girls had an average year in 2003',
+                                      '<b>2003</b><br />Boys had a rather poor showing in 2003',
+                                      '<b>2004</b><br />Girls had a good showing in 2004',
+                                      '<b>2004</b><br />Slightly better than than last year,<br />but still not good',
+                                      '<b>2005</b><br />Girls had a particularly good year',
+                                      '<b>2005</b><br />Boys got back up to par this year',
+                                      '<b>2006</b><br />Girls were back to average',
+                                      '<b>2006</b><br />Boys remained at an average level',
+                                      '<b>2007</b><br />Girls were more or less the same as last month',
+                                      '<b>2007</b><br />Boys were starting to drop again'
+                                     ]);
+                bar.Set('chart.tooltip.effect', 'expand');
+    
+                if (!document.all) {
+                    bar.Set('chart.zoom.vdir', 'center');
+                    bar.Set('chart.zoom.hdir', 'left');
+                    bar.Set('chart.zoom.frames', 50);
+                    bar.Set('chart.zoom.delay', 5);
+                    bar.Set('chart.zoom.factor', 2);
+                    bar.Set('chart.contextmenu', [['Zoom', RGraph.Zoom], null, ['Cancel', function () {}]]);
+                }
+    
+                bar.Set('chart.title', 'Population by gender (tooltips, context, zoom)');
+                bar.Set('chart.title.color', '#1254A3');
+                bar.Set('chart.gutter', 35);
+                bar.Set('chart.background.barcolor1', 'white');
+                bar.Set('chart.background.barcolor2', 'white');
+                bar.Set('chart.background.grid.hsize', 20);
+                bar.Set('chart.background.grid.vsize', 20);
+                bar.Set('chart.colors', ['pink', 'blue']);
+                bar.Set('chart.labels', ['2000', '2001', '2002', '2003', '2004', '2005', '2006', '2007']);
+                bar.Set('chart.text.angle', 45);
+                bar.Set('chart.units.post', 'm');
+                bar.Set('chart.shadow', true);
+                bar.Set('chart.shadow.color', '#666');
+                bar.Set('chart.shadow.blur', 5);
+                bar.Set('chart.shadow.offsetx', 3);
+                bar.Set('chart.shadow.offsety', 3);
+                bar.Set('chart.strokecolor', 'rgba(0,0,0,0)');
+                bar.Set('chart.labels.above', true);
+                bar.Draw();
+            }
+            
+            if (!document.all) CreateBarChart();
+        </script>
+
+        <canvas id="myPie" width="475" height="300">[Please wait for the onload event to fire...]</canvas>
+        <script async>
+            /**
+            * Create the pie chart
+            */
+            function CreatePieChart ()
+            {
+                var pie = new RGraph.Pie('myPie', [41,37,16,3,3]);
+                
+                // Not available on MSIE
+                if (!document.all) {
+                    pie.Set('chart.tooltips', [
+                                               '<b>Internet Explorer 7 (41%)</b><br />Internet Explorer is still the most popular browser,<br />though with the release of Google Chrome, that may change',
+                                               '<b>Internet Explorer 6 (37%)</b><br />A particularly poor browser. Though I liked it at the time',
+                                               "<b>Firefox (16%)</b><br />Popularity is growing, but it's still only got ~16%<br />market share",
+                                               '<b>Safari (3%)</b><br />Apples browser offering',
+                                               '<b>Other (3%)</b><br />Other browsers, including Opera and Chrome<br />(at the moment)'
+                                              ]);
+                    pie.Set('chart.tooltip.effect', 'expand');
+                    pie.Set('chart.highlight.style', '3d');
+                }
+    
+                pie.Set('chart.title', 'Browser share July 2008, (tooltips)');
+                pie.Set('chart.labels', ['MSIE 7 (41%)', 'MSIE 6 (37%)', 'Firefox (16%)', 'Safari (3%)', 'Other (3%)']);
+                pie.Set('chart.strokestyle', 'white');
+                pie.Set('chart.linewidth', 4);
+                pie.Set('chart.text.size', 10);
+                pie.Set('chart.colors', ['red', '#ddd', '#0f0', 'blue', 'black']);
+                pie.Draw();
+            }
+            
+            if (!document.all) CreatePieChart();
+        </script>
+
+        <canvas id="myFunnel" width="300" height="300">[Please wait for the onload event to fire...]</canvas>
+        <script async>
+            /**
+            * Show the funnel chart
+            */
+            function CreateFunnelChart ()
+            {
+                var funnel = new RGraph.Funnel('myFunnel', [100,35,35,26,24,5]);
+                funnel.Set('chart.text.boxed', true);
+                funnel.Set('chart.title', 'A sales funnel (tooltips)');
+                funnel.Set('chart.title.vpos', 0.4);
+                funnel.Set('chart.labels', ['Initial contact', 'Established lead', 'Site visit', 'Order placed', 'Sale finalised', 'After sales visit']);
+                funnel.Set('chart.shadow', true);
+                funnel.Set('chart.shadow.offsetx', 3);
+                funnel.Set('chart.shadow.offsety', 3);
+                funnel.Set('chart.shadow.color', '#aaa');
+                funnel.Set('chart.gutter', 36);
+                
+                // Not available on MSIE
+                if (!document.all) {
+                    funnel.Set('chart.tooltips', [
+                                                  '<b>Initial contact</b><br />Potential Customers were contacted<br />to gauge interest',
+                                                  '<b>Established lead</b><br />Leads were collated and passed<br />to the follow up team',
+                                                  '<b>Site visit</b><br />A site visit was arranged',
+                                                  '<b>Order placed</b><br />An order was placed by the Customer',
+                                                  '<b>Sale</b><br />The sale was finalised',
+                                                  '<b>After sales followup</b><br />A follow up visit was arranged to ease<br />concerns'
+                                                 ]);
+                }
+    
+                funnel.Draw();
+            }
+            
+            if (!document.all) CreateFunnelChart();
+        </script>
+    </div>
+
+    <div style="float: left; width: 480px">
+        <div id="warning">
+
+            <p style="font-weight: bold; text-align: center">Important compatibility information</p>
+
+            <p>
+                This library uses <a href="http://dev.w3.org/html5/spec/spec.html" target="_blank">HTML5</a> features which are
+                implemented in recent browsers. As such you'll need to be using one of these latest browsers:
+                <a href="http://www.mozilla.com" target="_blank" rel="nofollow">Firefox 3.5+</a>,
+                <a href="http://www.google.com/chrome" target="_blank" rel="nofollow">Chrome 2+</a>,
+                <a href="http://www.apple.com/safari" target="_blank" rel="nofollow">Safari 4+</a>,
+                <a href="http://www.opera.com" target="_blank" rel="nofollow">Opera 10.5+</a> or
+                <a href="http://www.microsoft.com" target="_blank" rel="nofollow">Internet Explorer 8</a>.
+                
+                <br /><br />
+                
+                <b>Microsoft Internet Explorer 8</b> is now (December 2009) supported in a limited fashion. You can read more about it
+                <a href="docs/msie.html">here</a>.
+                
+                <br /><br />
+                
+                Older versions of <a href="http://www.opera.com" target="_blank">Opera</a> and other older browsers are supported in a limited fashion.
+                If they don't support text or shadows these will naturally be unavailable.
+        </div>
+    
+        <h2>Contents</h2>
+    
+        <ul>
+            <li><a href="#intro" title="A short description of RGraph">Introduction to RGraph</a></li>
+            <li><a href="docs/index.html#benefits" title="Benefits of using RGraph over more traditional server based graph/chart libraries">Benefits of HTML5 canvas graphs</a></li>
+            <li>
+                <a href="examples/index.html" title="Look at the examples">Examples</a> &amp; <a href="docs/index.html" title="Look at the documentation">documentation</a><br />
+    
+                <div style="padding-left: 20px">
+                    <div class="list-item label">Bar chart</div>
+                    <div class="list-item">
+                        [<a href="examples/bar.html">examples</a>]
+                        [<a href="docs/bar.html">documentation</a>]
+                    </div>
+    
+                    <br />
+    
+                    <div class="list-item label">Bi-polar chart</div>
+                    <div class="list-item link">
+                        [<a href="examples/bipolar.html">examples</a>]
+                        [<a href="docs/bipolar.html">documentation</a>]
+                    </div>
+    
+                    <br />
+    
+                    <div class="list-item label">Donut chart</div>
+                    <div class="list-item">
+                        [<a href="examples/donut.html">examples</a>]
+                        [<a href="docs/donut.html">documentation</a>]
+                    </div>
+    
+                    <br />
+    
+                    <div class="list-item label">Funnel chart</div>
+                    <div class="list-item">
+                        [<a href="examples/funnel.html">examples</a>]
+                        [<a href="docs/funnel.html">documentation</a>]
+                    </div>
+    
+                    <br />
+    
+                    <div class="list-item label">Gantt chart</div>
+                    <div class="list-item link">
+                        [<a href="examples/gantt.html">examples</a>]
+                        [<a href="docs/gantt.html">documentation</a>]
+                    </div>
+    
+                    <br />
+    
+                    <div class="list-item label">Horizontal Bar chart</div>
+                    <div class="list-item link">
+                        [<a href="examples/hbar.html">examples</a>]
+                        [<a href="docs/hbar.html">documentation</a>]
+                    </div>
+    
+                    <br />
+    
+                    <div class="list-item label">LED grid</div>
+                    <div class="list-item link">
+                        [<a href="examples/led.html">examples</a>]
+                        [<a href="docs/led.html">documentation</a>]
+                    </div>
+    
+                    <br />
+    
+                    <div class="list-item label">Line chart</div>
+                    <div class="list-item link">
+                        [<a href="examples/line.html">examples</a>]
+                        [<a href="docs/line.html">documentation</a>]
+                    </div>
+    
+                    <br />
+    
+                    <div class="list-item label">Meter</div>
+                    <div class="list-item link">
+                        [<a href="examples/meter.html">examples</a>]
+                        [<a href="docs/meter.html">documentation</a>]
+                    </div>
+    
+                    <br />
+    
+                    <div class="list-item label">Odometer</div>
+                    <div class="list-item link">
+                        [<a href="examples/odo.html">examples</a>]
+                        [<a href="docs/odo.html">documentation</a>]
+                    </div>
+    
+                    <br />
+    
+                    <div class="list-item label">Pie chart</div>
+                    <div class="list-item link">
+                        [<a href="examples/pie.html">examples</a>]
+                        [<a href="docs/pie.html">documentation</a>]
+                    </div>
+    
+                    <br />
+    
+                    <div class="list-item label">Progress bar</div>
+                    <div class="list-item link">
+                        [<a href="examples/progress.html">examples</a>]
+                        [<a href="docs/progress.html">documentation</a>]
+                    </div>
+    
+                    <br />
+    
+                    <div class="list-item label">Pseudo radar chart</div>
+                    <div class="list-item link">
+                        [<a href="examples/radar.html">examples</a>]
+                        [<a href="docs/radar.html">documentation</a>]
+                    </div>
+    
+                    <br />
+    
+                    <div class="list-item label">Scatter chart</div>
+                    <div class="list-item link">
+                        [<a href="examples/scatter.html">examples</a>]
+                        [<a href="docs/scatter.html">documentation</a>]
+                    </div>
+    
+                    <br />
+    
+                    <div class="list-item label">Traditional radar chart</div>
+                    <div class="list-item link">
+                        [<a href="examples/tradar.html">examples</a>]
+                        [<a href="docs/tradar.html">documentation</a>]
+                    </div>
+    
+                    <br /><br />
+    
+                    <div class="list-item" style="width: 300px"><a href="docs/msie.html">Microsoft Internet Explorer support</a></div><br />
+                    <div class="list-item" style="width: 300px"><a href="docs/async.html">Asynchronous processing</a></div><br />
+                    <div class="list-item" style="width: 300px"><a href="docs/zoom.html">Zooming your graphs</a></div><br />
+                    <div class="list-item" style="width: 300px"><a href="docs/annotating.html">Annotating your graphs</a></div><br />
+                    <div class="list-item" style="width: 300px"><a href="docs/combine.html">Combining charts</a></div><br />
+                    <div class="list-item" style="width: 300px"><a href="docs/external.html">Integrating RGraph with external libraries (ModalDialog)</a></div>
+                    
+                    <br />
+    
+                    <div class="list-item"><a href="docs/animation.html">Animating your graphs</a></div>
+                    
+                    <br />
+    
+                    <div class="list-item"><a href="examples/basic.html">A basic example</a></div>
+                    
+                    <br />
+    
+                    <div class="list-item"><a href="docs/css.html">Available CSS classes</a></div>
+                    
+                    <br />
+    
+                    <div class="list-item"><a href="docs/color.html">About canvas color definitions</a></div>
+    
+                    <br />
+    
+                    <div class="list-item"><a href="docs/context.html">About context menus</a></div>
+    
+                    <br />
+    
+                    <div class="list-item"><a href="docs/misc.html">Miscellaneous documentation</a></div>
+    
+                    <br />
+    
+                    <div class="list-item"><a href="docs/api.html">API documentation</a></div>
+                </div>
+            </li>
+    
+            <br />
+    
+            <li><a href="docs/index.html#browser" title="Information about browser support">Browser support</a></li>
+            <li><a href="docs/index.html#performance" title="Things you may want to look at concerning performance">Improving the performance of your graphs</a></li>
+            <li><a href="docs/index.html#implementation" title="Implementing RGraph on your website">Implementing RGraph</a></li>
+            <li><a href="docs/index.html#structure" title="Suggested structure for RGraph">Suggested structure for RGraph</a></li>
+            <li><a href="docs/index.html#integration" title="Information on integrating RGraph with server side scripting">Integration with server side scripting</a></li>
+            <li><a href="docs/issues.html" title="If you're having trouble, have a look through these">Common issues</a></li>
+            <li><a href="docs/index.html#support" title="Need support? Get it here">Support forum</a></li>
+            
+            <li><a href="#download" title="Download RGraph">Download</a></li>
+            <li><a href="#license" title="">License (<a href="docs/licensing.html">Licensing FAQs</a>)</a></li>
+        </ul>
+    </div>
+
+    <br clear="all" />
+
+    <a name="intro"></a>
+    <h2>Introduction to RGraph</h2>
+
+    <p>
+        RGraph is a HTML5 canvas graph library. It uses features that became available in HTML5 (specifically, the CANVAS tag)
+        to produce a wide variety of graph types: bar chart, bi-polar chart (also known as an age frequency chart), donut chart,
+        funnel chart, gantt chart, horizontal bar chart, LED display, line graph, meter, odometer, pie chart, progress bar, pseudo radar chart,
+        scatter graph and traditional radar chart. RGraph is covered by the <b><a href="#license">RGraph License</a></b>.
+    </p>
+    
+    <p style="float: right">
+        <a href="docs/index.html"><b>Full documentation &raquo;</b></a>
+    </p>
+
+    <br clear="all" />
+
+    <a name="download"></a>
+    <h2>Download</h2>
+    
+    <?php if($_SERVER['SERVER_NAME'] == 'www.rgraph.net' OR $_SERVER['SERVER_NAME'] == 'www.rgraph.org'): ?>
+    
+        <p>
+            The latest download is below. It's a .zip file which you'll be able to download to your computer and open with Winzip
+            (or equivalent).
+        </p>
+    
+        <?php ShowDownloadLinks() ?>
+
+        <p style="background-color: #ff0; border: 2px dashed black; padding: 5px; box-shadow: 0 0 15px #ccc; -moz-box-shadow: 0 0 15px #ccc; -webkit-box-shadow: 0 0 15px #ccc">
+            The website is based on the beta version of RGraph. If you're only interested in the stable version of RGraph, you should
+            download the stable archive and use that.
+        </p>
+
+    <?php else: ?>
+
+        <span style="color: red">
+            [Only available on <a href="http://www.rgraph.net#download">http://www.rgraph.net</a>]
+        </span>
+    <?php endif ?>
+
+
+    <a name="license"></a>
+    <h2>License</h2>
+
+    <div style="float: right; padding-left: 15px; padding-right: 40px">
+        
+        <div style="float: right">
+            <form action="https://checkout.google.com/api/checkout/v2/checkoutForm/Merchant/456239608328156" id="BB_BuyButtonForm" method="post" name="BB_BuyButtonForm">
+                <input name="item_name_1" type="hidden" value="RGraph and PHPGuru License" />
+                <input name="item_description_1" type="hidden" value="License for RGraph: HTML5 graphing library and phpguru.org" />
+                <input name="item_quantity_1" type="hidden" value="1" />
+                <input name="item_price_1" type="hidden" value="49.0" />
+                <input name="item_currency_1" type="hidden" value="GBP" />
+                <input name="_charset_" type="hidden" value="utf-8" />
+                <input alt="" width="116" height="61" src="images/buy.png" type="image" />
+            </form>
+        </div>
+    </div>
+
+    <p>
+        RGraph is covered by the RGraph license. A summary is that for commercial/business use
+        there is a small one-time licensing fee to pay. For non-commercial purposes it's freely usable.
+        
+        There are some
+        <a href="docs/licensing.html"><b>licensing FAQs</b></a> that should help to answer any
+        questions you might have. If you need one, you can <a href="http://www.rgraph.net/invoice.html">get an invoice here</a>.
+    </p>
+
+    <p>
+        If you have any questions about RGraph licensing, you can send your question to: <a href="mailto:licensing@rgraph.net">licensing@rgraph.net</a>.
+        If your question is of a support nature though, please use the <a href="http://groups.google.com/group/rgraph/topics?gvc=2" target="_blank">support forum</a>.
+    </p>
+    
+    <iframe width="100%" height="300" src="LICENSE.txt"></iframe>
+
+    <p>
+    
+    <div id="rgraph"></div>
+    
+    <script>
+        if (location.host == 'dev.rgraph.org' || location.host == 'www.rgraph-dev.org' || location.host == 'dev.rgraph.net') {
+            document.getElementById("rgraph").innerHTML = '<div id="devtag">DEVELOPMENT<br /><a href="http://www.rgraph.net">Go to the live version &raquo;</a></div>';
+        }
+    </script>
+
+    <script>
+        if (location.host == 'www.rgraph.net') {
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+        }
+    </script>
+        
+    <script>
+    
+        if (location.host == 'www.rgraph.net') {
+            try {
+                var pageTracker = _gat._getTracker("UA-54706-2");
+                pageTracker._trackPageview();
+            } catch(err) {}
+        }
+    </script>
+
+    <!-- The twitter DIV -->
+    <div id="twitter_div" style="
+                                 position: absolute;
+                                 top: 0;
+                                 left: 0;
+                                 background-color: #eee;
+                                 border: 2px dashed black;
+                                 box-shadow: 3px 3px 3px #ccc;
+                                 -moz-box-shadow: 3px 3px 3px #ccc;
+                                 -webkit-box-shadow: 3px 3px 3px #ccc;
+                                 padding: 3px;
+                                 display: none;
+                                ">
+        <a href="javascript:Go('http://twitter.com/home/?status=RGraph:%20A%20canvas%20graph%20library%20based%20on%20the%20HTML5%20canvas%20tag')" style="text-decoration: none" rel="nofollow">Tweet this</a><br>
+        <a href="javascript:Go('http://twitter.com/_rgraph')" style="text-decoration: none" rel="nofollow">RGraph on Twitter</a>
+    </div>
+    
+    <div id="myDialog" class="ModalDialog_dialog" style="display: none">
+        <div style="font-weight: bold; font-face: Verdana; text-align: center">A modal dialog</div>
+        <p>
+            This is an example of the ModalDialog that comes as part of RGraph. More information on it
+            can be found <a href="docs/external.html">here</a>.
+        </p>
+        <small><a href="javascript: ModalDialog.Close()">Close</a></small>
+    </div>
+</body>
+</html>
