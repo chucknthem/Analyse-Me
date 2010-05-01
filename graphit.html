@@ -32,7 +32,7 @@ body {
 			return;
 		}
 	db.transaction(function(tx) {
-	   tx.executeSql("SELECT host, COUNT(*) as count FROM analyseMe GROUP BY host ORDER BY count desc LIMIT " + n, [], 
+	   tx.executeSql("SELECT host, SUM(count) as count FROM analyseMe GROUP BY host ORDER BY count desc LIMIT " + n, [], 
 	   function(tx, result) {
 		  var len = result.rows.length;                         
 				var data = {};
