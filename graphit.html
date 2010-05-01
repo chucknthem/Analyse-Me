@@ -17,6 +17,39 @@ body {
 }
 	
 </style>
+<script src="js/jquery-1.4.2.min.js"></script>
+<script>
+	var db = window.openDatabase("analyseMe", "0.1", "Analyse Me Data", 1024*1024);
+	if(!db) {                                                      
+	localStorage['err'] = "database connection failed";
+ } else {
+	localStorage['err'] = null;
+ }
+
+
+	function fetchBest(n, callback) {
+	if(!db) {
+			return;
+		}
+	db.transaction(function(tx) {
+	   tx.executeSql("SELECT host, COUNT(*) as count FROM analyseMe GROUP BY host ORDER BY count desc LIMIT " + n, [], 
+	   function(tx, result) {
+		  var len = result.rows.length;                         
+				var data = {};
+				data['hosts'] = [];
+				data['counts'] = [];
+		  for (var i = 0; i < len; i++) {
+			 data['hosts'].push(result.rows.item(i)['host']);
+			 data['counts'].push(result.rows.item(i)['count']);
+		  }
+		  callback(data);
+	   }, function(tx, error) {
+				localStorage['err'] = "select error:" + error;
+			}
+	   );
+	});
+	}
+</script>
 </head>
 <body>
 <canvas id="overallUsage" width="800" height="450"></canvas>

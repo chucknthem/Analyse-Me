@@ -44,8 +44,10 @@ window.onload = function () {
 		}
 	}
 	
-	graphit (["facebook.com","google.com.au","mail.google.com"],[[40,25,15]],data1);
+	fetchBest(10, function (data) {
+		graphit (data.hosts,[data.counts],data1);
+	});
 	
-	window.setTimeout ('graphit (["facebook.com","google.com.au","mail.google.com"],[[30,5,66]],data1);',1000);
+	//window.setTimeout ('graphit (["facebook.com","google.com.au","mail.google.com"],[[30,5,66]],data1);',1000);
 	
 }
