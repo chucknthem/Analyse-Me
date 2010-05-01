@@ -36,6 +36,7 @@
 	</head>
 	<body>
 		<div id="data"></div>	
+		<button onclick="chrome.tabs.create ({'url':'graphit.html'});">GraphIt</button>
 		<script>
 			function appender(data) {
 				for(var i = 0; i < data['hosts'].length; i++) {
