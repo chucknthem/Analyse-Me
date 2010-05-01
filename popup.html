@@ -18,9 +18,12 @@
                tx.executeSql("SELECT host, COUNT(*) as count FROM analyseMe GROUP BY host LIMIT " + n, [], 
                function(tx, result) {
                   var len = result.rows.length;                         
-                  var data = [];
-                  for(var i = 0; i < len; i++) {
-                     data.push(result.rows.item(i).text);
+						var data = {};
+						data['hosts'] = [];
+						data['counts'] = [];
+                  for (var i = 0; i < len; i++) {
+                     data['hosts'].push(result.rows.item(i)['host']);
+                     data['counts'].push(result.rows.item(i)['count']);
                   }
                   callback(data);
                }, function(tx, error) {
@@ -35,7 +38,12 @@
 		<div id="data"></div>	
 		<script>
 			function appender(data) {
-				$('#data').append(data);
+				for(var i = 0; i < data['hosts'].length; i++) {
+					$('#data').append(data['hosts'][i]);
+					$('#data').append(data['counts'][i]);
+
+					$('#data').append('<br />');
+				}
 			}
 			fetchBest(10, appender);
 
