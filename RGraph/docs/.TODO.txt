@@ -1,0 +1,23 @@
+ TODO
+ ====
+  o [PROGRESS] Add "in bar" label (level indicator)
+  o [PROGRESS] Add margin
+  o [SCATTER] Add chart.ymin
+  o [ODO] Look at adding "rivets" decoration
+  o [ODO] Add option to not draw the trailing bit on the pointer
+  o [SCATTER] Allow specifying the specific point at which the X label is at:
+              http://groups.google.com/group/rgraph/browse_thread/thread/5e8debf24acb3e52?hl=en#
+ o [BAR] Grouped bar chart and shadows going to the left
+ o [SCATTER] Allow stepped lines
+ o [THERMOMETER] Add this
+ o [ODO] This must always start at zero - this is a bug
+ o [MISC] New type of zoom - box
+ o [LINE] Mini background for the line
+ o [MISC] Add chart.background.grid.autofit, chart.background.grid.autofit.numvlines, chart.background.grid.autofit.numhlines to line, bar, and scatter
+ o [MISC] Zoom a selection
+ o [LINE] Allow multiple shadow colors
+ o [GANTT] Add grid to this if it's not there.
+ o [LINE] Add backdrop effect
+ o [PIE] Possible way to do exploded segments using arc() twice
+ o [MISC] Add option to control crosshairs line width - chart.crosshairs.linewidth
+ o [HBAR] Click boundaries are not distinct
