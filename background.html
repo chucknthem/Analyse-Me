@@ -19,7 +19,7 @@
 						tx.executeSql("SELECT COUNT(*) FROM analyseMe", [], null, 
 							function(tx, error) {
 								localStorage['err'] = "failed to select:" + error;
-								tx.executeSql("CREATE TABLE analyseMe(id INTEGER PRIMARY KEY AUTOINCREMENT, host TEXT, date TEXT, hour TINYINT, count INTEGER)", [], null, 
+								tx.executeSql("CREATE TABLE analyseMe(id INTEGER PRIMARY KEY AUTOINCREMENT, host TEXT NOT NULL, date TEXT NOT NULL, hour TINYINT NOT NULL, count INTEGER DEFAULT '0')", [], null, 
 									function(tx, error) {
 										localStorage['err'] = "failed to create SQL table:" + JSON.stringify(error);
 									}
@@ -29,6 +29,36 @@
 					}
 				);
 			}
+			/*
+			 * increment the count in a given row. If the row doesn't exit, insert it
+			 */
+			function updateRow(rowObj) {
+				if(!db) return;
+					db.transaction(function(tx) {
+						var sqlStr = "SELECT count FROM analyseMe WHERE host='" + 
+							rowObj['host'] + "' AND date='" + rowObj['date'] + "' AND hour='" + rowObj['hour'] + "'";
+						tx.executeSql(sqlStr, 
+							[], 
+							function(tx, result) { //select succeed
+								if(result.rows.length == 0) {
+									insertRow(rowObj);
+								} else {
+									var count = result.rows.item(0)['count'] + 1;
+									var sqlStr = "UPDATE analyseMe SET count='" + count + "' WHERE host='" + 
+										rowObj['host'] + "' AND date='" + rowObj['date'] + "' AND hour='" + rowObj['hour'] + "'";
+										tx.executeSql(sqlStr, [], null,
+										function(tx, error) {
+											localStorage['err'] = "failed to update SQL table:" + JSON.stringify(error);
+										}); //end execute update
+								} //close else
+							},
+							function(tx, error) { //select error
+								localStorage['err'] = "failed to execute select SQL table:" + JSON.stringify(error);
+							}
+						); //end execute select
+					}); //end db transaction
+				}
+
 			function insertRow(rowObj) {
 				if(!db) return;
 					db.transaction(function(tx) {
@@ -41,21 +71,6 @@
 						});
 					});
 				}
-			function fetchBest(n, callback) {
-				if(!db) return;
-				db.transaction(function(tx) {
-					tx.executeSql("SELECT host, COUNT(*) as count FROM analyseMe GROUP BY host LIMIT " + n, [], null, 
-					function(tx, result) {
-						var len = result.rows.length;
-						var data = [];
-						for(var i = 0; i < len; i++) {
-							data.push(results.rows.item(i).text);
-						}
-						callback(data);
-					}
-					);
-				});
-			}
 
 		</script>
 	</head>
@@ -65,19 +80,19 @@
 		<script>
 			function fetch_url() {
 				chrome.tabs.getSelected(null, function(tab) {
-					  chrome.tabs.sendRequest(tab.id, {}, function(response) {
-						if (response.value == 1) {
-							var d = new Date();
-							var rowObj = {};
-							var urlArray = tab.url.split(/\//);
-							if(urlArray[0] == 'http:' || urlArray[0] == 'https:') { //only count http and https pages
-								rowObj['host'] = urlArray[2];
-								rowObj['date'] = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
-								rowObj['hour'] = d.getHours();
-								insertRow(rowObj);
-							}
+					chrome.tabs.sendRequest(tab.id, {}, function(response) {
+					if (response.value == 1) {
+						var d = new Date();
+						var rowObj = {};
+						var urlArray = tab.url.split(/\//);
+						//only count http and https pages
+						if(urlArray[0] == 'http:' || urlArray[0] == 'https:') {
+							rowObj['host'] = urlArray[2].replace(/^www\./, '');
+							rowObj['date'] = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+							rowObj['hour'] = d.getHours();
+							updateRow(rowObj);
 						}
-					});
+					}
 				});
 			}
 			initDB();
