@@ -15,7 +15,7 @@
 					return;
 				}
             db.transaction(function(tx) {
-               tx.executeSql("SELECT host, COUNT(*) as count FROM analyseMe GROUP BY host ORDER BY count desc LIMIT " + n, [], 
+               tx.executeSql("SELECT host, COUNT(*) as count FROM analyseMe GROUP BY host ORDER BY count DESC LIMIT " + n, [], 
                function(tx, result) {
                   var len = result.rows.length;                         
 						var data = {};
@@ -42,7 +42,6 @@
 				for(var i = 0; i < data['hosts'].length; i++) {
 					$('#data').append(data['hosts'][i]);
 					$('#data').append(data['counts'][i]);
-
 					$('#data').append('<br />');
 				}
 			}
