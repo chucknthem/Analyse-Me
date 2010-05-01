@@ -1,0 +1,1 @@
+document.childNodes[0].addEventListener ("onmousemove",active,false);
