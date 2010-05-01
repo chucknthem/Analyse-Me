@@ -6,10 +6,16 @@ graphit = function (names,values,data1) {
 	document.getElementById('overallUsage').width = document.getElementById('overallUsage').width;
 	document.getElementById('hourUsage').width = document.getElementById('hourUsage').width;
 	
+	max = names[0].length;
+	for (i=1;i<names.length;i++) {
+		if (names[i].length > max) {
+			max = names[i].length;
+		}
+	}
 	
 	bar = new RGraph.HBar('overallUsage', values);
 	bar.Set('chart.labels', names);
-	bar.Set('chart.gutter', 45);
+	bar.Set('chart.gutter', 60);
 	bar.Set('chart.background.barcolor1', 'rgba(255,255,255,1)');
 	bar.Set('chart.background.barcolor2', 'rgba(255,255,255,1)');
 	bar.Set('chart.background.grid', true);
@@ -48,6 +54,6 @@ window.onload = function () {
 		graphit (data.hosts,[data.counts],data1);
 	});
 	
-	//window.setTimeout ('graphit (["facebook.com","google.com.au","mail.google.com"],[[30,5,66]],data1);',1000);
+	window.setInterval ('	fetchBest(10, function (data) {graphit (data.hosts,[data.counts],data1);});;',10000);
 	
 }

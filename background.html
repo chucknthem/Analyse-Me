@@ -65,15 +65,19 @@
 		<script>
 			function fetch_url() {
 				chrome.tabs.getSelected(null, function(tab) {
-					var d = new Date();
-					var rowObj = {};
-					var urlArray = tab.url.split(/\//);
-					if(urlArray[0] == 'http:' || urlArray[1] == 'https:') { //only count http and https pages
-						rowObj['host'] = urlArray[2];
-						rowObj['date'] = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
-						rowObj['hour'] = d.getHours();
-						insertRow(rowObj);
-					}
+					  chrome.tabs.sendRequest(tab.id, {}, function(response) {
+						if (response.value == 1) {
+							var d = new Date();
+							var rowObj = {};
+							var urlArray = tab.url.split(/\//);
+							if(urlArray[0] == 'http:' || urlArray[0] == 'https:') { //only count http and https pages
+								rowObj['host'] = urlArray[2];
+								rowObj['date'] = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+								rowObj['hour'] = d.getHours();
+								insertRow(rowObj);
+							}
+						}
+					});
 				});
 			}
 			initDB();
