@@ -1,13 +1,44 @@
 <html>
 	<head>
 		<script src="js/jquery-1.4.2.min.js"></script>
-		<script src="popup.js"></script>
-		<script src="RGraph/libraries/RGraph.common.js" ></script> 
-		<script src="RGraph/libraries/RGraph.line.js" ></script> 
-		<!--[if IE]><script src="RGraph/excanvas/excanvas.compressed.js"></script><![endif]--> 
+		<script>
+			var db = window.openDatabase("analyseMe", "0.1", "Analyse Me Data", 1024*1024);
+			if(!db) {                                                      
+            localStorage['err'] = "database connection failed";
+         } else {
+            localStorage['err'] = null;
+         }
+
+
+			function fetchBest(n, callback) {
+            if(!db) {
+					return;
+				}
+            db.transaction(function(tx) {
+               tx.executeSql("SELECT host, COUNT(*) as count FROM analyseMe GROUP BY host LIMIT " + n, [], 
+               function(tx, result) {
+                  var len = result.rows.length;                         
+                  var data = [];
+                  for(var i = 0; i < len; i++) {
+                     data.push(result.rows.item(i).text);
+                  }
+                  callback(data);
+               }, function(tx, error) {
+						localStorage['err'] = "select error:" + error;
+					}
+               );
+            });
+			}
+		</script>
 	</head>
 	<body>
-		<canvas id="lineGraph" width="475" height="250">[Please wait...]</canvas>
-		<button onclick="chrome.tabs.create ({'url':'graphit.html'});">GraphIt</button>
+		<div id="data"></div>	
+		<script>
+			function appender(data) {
+				$('#data').append(data);
+			}
+			fetchBest(10, appender);
+
+		</script>
 	</body>
 </html>

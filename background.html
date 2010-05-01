@@ -1,19 +1,81 @@
 <html>
 	<head>
 		<script src="js/jquery-1.4.2.min.js"></script>
+		<script>
+			var db = window.openDatabase("analyseMe", "0.1", "Analyse Me Data", 1024*1024);
+			if(!db) {
+				localStorage['err'] = "database connection failed";
+			} else {
+				localStorage['err'] = null;
+			}
+
+			/*
+			 * try to create the db if it doesn't exist
+			 */
+			function initDB() {
+				if(!db) return;
+				db.transaction(
+					function(tx) {
+						tx.executeSql("SELECT COUNT(*) FROM analyseMe", [], null, 
+							function(tx, error) {
+								localStorage['err'] = "failed to select:" + error;
+								tx.executeSql("CREATE TABLE analyseMe(id INTEGER PRIMARY KEY AUTOINCREMENT, host TEXT, date TEXT, hour TINYINT, count INTEGER)", [], null, 
+									function(tx, error) {
+										localStorage['err'] = "failed to create SQL table:" + JSON.stringify(error);
+									}
+								);
+							}
+						);
+					}
+				);
+			}
+			function insertRow(rowObj) {
+				if(!db) return;
+					db.transaction(function(tx) {
+						tx.executeSql("INSERT INTO analyseMe (host, date, hour) VALUES ('" + 
+							rowObj['host'] + "','" + rowObj['date'] + "','" + rowObj['hour'] + "')", 
+							[], 
+							null,
+						function(tx, error) {
+							localStorage['err'] = "failed to load SQL table:" + JSON.stringify(error);
+						});
+					});
+				}
+			function fetchBest(n, callback) {
+				if(!db) return;
+				db.transaction(function(tx) {
+					tx.executeSql("SELECT host, COUNT(*) as count FROM analyseMe GROUP BY host LIMIT " + n, [], null, 
+					function(tx, result) {
+						var len = result.rows.length;
+						var data = [];
+						for(var i = 0; i < len; i++) {
+							data.push(results.rows.item(i).text);
+						}
+						callback(data);
+					}
+					);
+				});
+			}
+
+		</script>
 	</head>
 	<body>
 		<div id="data">
 		</div>
 		<script>
-			var i = 0;
-			var fetch_url = function() {
+			function fetch_url() {
 				chrome.tabs.getSelected(null, function(tab) {
-					//localStorage['cur_url'] = tab.url;
-					localStorage['cur_url'] = i++;
+					var d = new Date();
+					var rowObj = {};
+					var urlArray = tab.url.split(/\//);
+					rowObj['host'] = urlArray[2];
+					rowObj['date'] = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+					rowObj['hour'] = d.getHours();
+					insertRow(rowObj);
 				});
 			}
-			setInterval('fetch_url()', 50);
+			initDB();
+			window.setInterval('fetch_url()', 10000);
 		</script>
 	</body>
 </html>
