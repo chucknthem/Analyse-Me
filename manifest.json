@@ -7,7 +7,6 @@
 		"background": "background.html"
 	},
 	"permissions": [
-		"tabs",
-		"windows"
+		"tabs"
 	]
 }
