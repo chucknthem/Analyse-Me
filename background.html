@@ -17,7 +17,7 @@
 						//only count http and https pages
 						if(urlArray[0] == 'http:' || urlArray[0] == 'https:') {
 							rowObj['host'] = urlArray[2].replace(/^www\./, '');
-							var dateStr = d.getISOString().split(/T/)[0];
+							var dateStr = d.toISOString().split(/T/)[0];
 							rowObj['date'] = dateStr;
 							rowObj['hour'] = d.getHours();
 							DB.updateRow(rowObj);
@@ -27,7 +27,7 @@
 			});
 		}
 			DB.initDB();
-			window.setInterval('fetch_url()', 1000);
+			window.setInterval('fetch_url()', 10000);
 		</script>
 	</body>
 </html>

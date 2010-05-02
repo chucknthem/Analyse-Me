@@ -87,10 +87,20 @@ window.onload = function () {
 		scrollBar.fillStyle = '#aaa';
 		scrollBar.velocity = 1;
 		scrollBar.target = [0,0,40,15]; 
+		scrollBar.lineWidth = 1;
 		var moveInterval = null
 		function renderScrollBar() {
+			//bar background
+			ctx.lineWidth = scrollBar.lineWidth;
 			ctx.fillStyle = clearFillStyle;
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			//day dividers
+			//ctx.fillStyle = '#000';
+			//ctx.beginPath();
+			//for (var 
+
+
+
 			ctx.fillStyle = scrollBar.fillStyle;
 			ctx.fillRect(scrollBar.rect[0], scrollBar.rect[1], scrollBar.rect[2], scrollBar.rect[3]);
 		}
