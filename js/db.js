@@ -83,14 +83,9 @@ var DB = (function() {
 				if(!this.db) return;
 				this.db.transaction(
 					function(tx) {
-						tx.executeSql("SELECT COUNT(*) FROM analyseMe", [], null, 
+						tx.executeSql("CREATE TABLE IF NOT EXISTS analyseMe(id INTEGER PRIMARY KEY AUTOINCREMENT, host TEXT NOT NULL, date TEXT NOT NULL, hour TINYINT NOT NULL, count INTEGER DEFAULT '0')", [], null, 
 							function(tx, error) {
-								console.error("failed to select:" + error.message);
-								tx.executeSql("CREATE TABLE analyseMe(id INTEGER PRIMARY KEY AUTOINCREMENT, host TEXT NOT NULL, date TEXT NOT NULL, hour TINYINT NOT NULL, count INTEGER DEFAULT '0')", [], null, 
-									function(tx, error) {
-										console.error("failed to create SQL table:" + JSON.stringify(error));
-									}
-								);
+								console.error("failed to create SQL table:" + JSON.stringify(error));
 							}
 						);
 					}

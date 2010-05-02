@@ -68,6 +68,9 @@ var graphit = function (names,values) {
 	bar.Draw();
 };
 
+var filterData = function(data) {
+
+}
 
 var hourData;
 var animateScrollBar = null;
@@ -95,11 +98,14 @@ window.onload = function () {
 			ctx.fillStyle = clearFillStyle;
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
 			//day dividers
-			//ctx.fillStyle = '#000';
-			//ctx.beginPath();
-			//for (var 
-
-
+			ctx.fillStyle = '#000';
+			ctx.beginPath();
+			for (var i = 1; i < 7; i++) {
+				ctx.moveTo(i*canvas.width/7, 0);
+				ctx.lineTo(i*canvas.width/7, canvas.height);
+			}	
+			ctx.stroke();
+			ctx.closePath();
 
 			ctx.fillStyle = scrollBar.fillStyle;
 			ctx.fillRect(scrollBar.rect[0], scrollBar.rect[1], scrollBar.rect[2], scrollBar.rect[3]);
