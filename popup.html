@@ -2,12 +2,37 @@
 	<head>
 		<script src="js/jquery-1.4.2.min.js"></script>
 		<script src="js/db.js"></script>
-		<script src="popup.js"></script>
 		<script src="RGraph/libraries/RGraph.common.js" ></script>
 		<script src="RGraph/libraries/RGraph.hbar.js" ></script>
 	</head>
 	<body>
-		<canvas id="overallUsage" width="400" height="300"></canvas>
+	<script>
+		var bar = {};
+		var graphit = function (names,values) {
+
+			$('#overallUsage').width = $('#overallUsage').width;
+			
+			bar = new RGraph.HBar('overallUsage', values);
+			bar.Set('chart.labels', names);
+			bar.Set('chart.gutter', 60);
+			bar.Set('chart.background.barcolor1', 'rgba(255,255,255,1)');
+			bar.Set('chart.background.barcolor2', 'rgba(255,255,255,1)');
+			bar.Set('chart.background.grid', true);
+			bar.Set('chart.colors', ['red', 'orange','yellow','green','blue','purple','black','cyan','Chocolate','Magenta']);
+				
+			bar.Draw();
+		}
+
+		window.onload = function () {
+			DB.fetchBest(10, function (data) {
+				graphit (data.hosts,[data.counts]);
+			});
+			
+			window.setInterval ('DB.fetchBest(10, function (data) {graphit (data.hosts,[data.counts]);});;',10000);
+		};
+	</script>
+
+		<canvas id="overallUsage" width="400" height="320"></canvas>
 		<button onclick="chrome.tabs.create ({'url':'graphit.html'});">GraphIt</button>
 	</body>
 </html>

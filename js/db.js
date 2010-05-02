@@ -9,6 +9,44 @@ var DB = (function() {
 				localStorage['err'] = null;
 			}
 		},
+		'fetchPerHour':function(params, callback) {
+			if(!this.db) return;
+			this.db.transaction(function(tx) {
+				var sql = "SELECT host, date, hour, SUM(count) as count FROM analyseMe GROUP BY host, date, hour";
+				tx.executeSql(sql, [],
+					function(tx, result) {
+						var data = [];
+						var len = result.rows.length;
+						for (var i = 0; i < len; i++) {
+							data.push(result.rows.item(i));
+						}
+						callback(data);
+					},
+					function(tx, error) {
+						localStorage['err'] = "select error:" + error;
+					}
+				);
+			});//end transaction
+		},
+		'fetchPerDay':function(params, callback) {
+			if(!this.db) return;
+			this.db.transaction(function(tx) {
+				var sql = "SELECT host, date, SUM(count) as count FROM analyseMe GROUP BY host, date";
+				tx.executeSql(sql, [],
+					function(tx, result) {
+						var data = [];
+						var len = result.rows.length;
+						for (var i = 0; i < len; i++) {
+							data.push(result.rows.item(i));
+						}
+						callback(data);
+					},
+					function(tx, error) {
+						localStorage['err'] = "select error:" + error;
+					}
+				);
+			});//end transaction
+		},
 		'fetchBest':function(n, callback) {
 			if(!this.db) {
 				return;

@@ -1,8 +1,8 @@
 <html>
 <head>
 <title> graph it</title>
+<script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="js/db.js"></script>
-<script type="text/javascript" src="graphit.js"></script>
 <script src="RGraph/libraries/RGraph.common.js" ></script>
 <script src="RGraph/libraries/RGraph.hbar.js" ></script>
 <script src="RGraph/libraries/RGraph.line.js" ></script>
@@ -16,14 +16,128 @@ body {
 	height:100%;
 	margin:0px;
 }
-	
+#hourScroll {
+	background-color:#CCC;
+	margin-right:100px;
+	margin-left:200px;
+}
+#hourScrollWrapper {
+	border:1px;
+	border-color:#000;
+}
 </style>
 </head>
 <body>
 <canvas id="overallUsage" width="800" height="450"></canvas>
-
 <canvas id="hourUsage" width="800" height="450"></canvas>
+<div id="hourScrollWrapper">
+	<canvas id="hourScroll" width="500px" height="15px" ></canvas>
+</div>
 <canvas id="dailyUsage" width="800" height="450"></canvas>
+<script>
+var bar = {};
+var line = {};
+
+var graphit = function (names,values) {
+
+	$('#overallUsage').width = 10;
+	$('#overallUsage').width = $('#overallUsage').width;
+	$('#hourUsage').width = ('#hourUsage').width;
+	
+	max = names[0].length;
+	for (i=1;i<names.length;i++) {
+		if (names[i].length > max) {
+			max = names[i].length;
+		}
+	}
+	
+	bar = new RGraph.HBar('overallUsage', values);
+	bar.Set('chart.labels', names);
+	bar.Set('chart.gutter', 60);
+	bar.Set('chart.background.barcolor1', 'rgba(255,255,255,1)');
+	bar.Set('chart.background.barcolor2', 'rgba(255,255,255,1)');
+	bar.Set('chart.background.grid', true);
+	bar.Set('chart.colors', ['red', 'orange','yellow','green','blue','purple','black','cyan','Chocolate','Magenta']);
+		
+	bar.Draw();
+};
+
+
+var hourData;
+var animateScrollBar = null;
+window.onload = function () {
+	DB.fetchBest(10, function (data) {
+		graphit (data.hosts,[data.counts]);
+	});
+	DB.fetchPerHour(null, function(data) {
+		hourData = data;
+		var canvas = $('#hourScroll')[0];
+		var ctx = canvas.getContext("2d");
+		var drag = false;
+		var clearFillStyle = '#ccc';
+		//x,y,width,height
+		var scrollBar = {};
+		scrollBar.rect = [0,0,40,15];
+		scrollBar.fillStyle = '#aaa';
+		scrollBar.velocity = 1;
+		scrollBar.target = [0,0,40,15]; 
+		var moveInterval = null
+		function renderScrollBar() {
+			ctx.fillStyle = clearFillStyle;
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			ctx.fillStyle = scrollBar.fillStyle;
+			ctx.fillRect(scrollBar.rect[0], scrollBar.rect[1], scrollBar.rect[2], scrollBar.rect[3]);
+		}
+		function setTarget(pos) {
+			scrollBar.target[0] = pos - scrollBar.target[2]/2;
+			if(scrollBar.target[0] < 0) {
+				scrollBar.target[0] = 0;
+			}
+			if(scrollBar.target[0] + scrollBar.target[2] > canvas.width) {
+				scrollBar.target[0] = canvas.width - scrollBar.target[2];
+			}
+		}
+		animateScrollBar = function() {
+			var diff = scrollBar.target[0] - scrollBar.rect[0];
+			if (diff != 0) {
+				var step = diff/3;
+				scrollBar.rect[0] += step;
+				if(scrollBar.rect[0] < 0) {
+					scrollBar.rect[0] = 0;
+				}
+				if(scrollBar.rect[0] + scrollBar.rect[2] > canvas.width) {
+					scrollBar.rect[0] = canvas.width - scrollBar.rect[2];
+				}
+
+				renderScrollBar();
+			} else {
+				if(moveInterval) {
+					clearInterval(moveInterval);
+				}
+			}
+		}
+		$('#hourScroll').mousemove(function(e) {
+			//e.pageY, e.clientY
+			if(drag) {
+				//TODO check if it's within the rec region
+				setTarget(e.offsetX);
+			}
+		});
+		$('#hourScroll').mousedown(function(e) {
+			setTarget(e.offsetX);
+			moveInterval = setInterval('animateScrollBar()', 50);
+			drag = true;
+		});
+		$('body').mouseup(function(e) {
+			if(moveInterval) {
+				clearInterval(moveInterval);
+			}
+			drag = false;
+		});
+	});
+	window.setInterval ('DB.fetchBest(10, function (data) {graphit (data.hosts,[data.counts]);});',10000);
+}
+</script>
 
 </body>
 </html>
