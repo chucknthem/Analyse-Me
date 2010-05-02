@@ -51,9 +51,15 @@ var graphit = function (names,values) {
 		}
 	}
 	
+	var size = (max+1)*2.5;
+	
+	document.getElementById('overallUsage').height = 450 + 2*size;
+	document.getElementById('overallUsage').width = 800 + size*4;
+	document.getElementById('overallUsage').style.cssText = "margin-top:-"+size+"px; margin-bottom:-"+size+"px;";
+	
 	bar = new RGraph.HBar('overallUsage', values);
 	bar.Set('chart.labels', names);
-	bar.Set('chart.gutter', 60);
+	bar.Set('chart.gutter', size);
 	bar.Set('chart.background.barcolor1', 'rgba(255,255,255,1)');
 	bar.Set('chart.background.barcolor2', 'rgba(255,255,255,1)');
 	bar.Set('chart.background.grid', true);

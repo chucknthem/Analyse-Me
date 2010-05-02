@@ -21,12 +21,15 @@
 							rowObj['hour'] = d.getHours();
 							DB.updateRow(rowObj);
 						}
+						console.log ("movement");
+					} else {
+						console.log ("no movement");
 					}
 				});
 			});
 		}
 			DB.initDB();
-			window.setInterval('fetch_url()', 10000);
+			window.setInterval('fetch_url()', 1000);
 		</script>
 	</body>
 </html>
