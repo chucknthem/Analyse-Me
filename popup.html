@@ -6,9 +6,14 @@
 		<script src="RGraph/libraries/RGraph.hbar.js" ></script>
 	</head>
 	<body>
+	<div id="error" class="error"></div>
 	<script>
 		var bar = {};
 		var graphit = function (names,values) {
+			if (typeof(names) == 'undefined' || names.length == 0) {
+				$("#error").append("no data yet, browse a few websites and try again in a few minutes");
+				return;
+			}
 			var max = names[0].length;
 			for (i=1;i<names.length;i++) {
 				if (names[i].length > max) {

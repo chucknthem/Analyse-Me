@@ -28,9 +28,10 @@ body {
 </style>
 </head>
 <body>
-<canvas id="overallUsage" width="800" height="450"></canvas>
-<canvas id="hourUsage" width="800" height="450"></canvas>
-<div id="hourScrollWrapper">
+	<div id="error" class="error"></div>
+	<canvas id="overallUsage" width="800" height="450"></canvas>
+	<canvas id="hourUsage" width="800" height="450"></canvas>
+	<div id="hourScrollWrapper">
 	<canvas id="hourScroll" width="500px" height="15px" ></canvas>
 </div>
 <canvas id="dailyUsage" width="800" height="450"></canvas>
@@ -40,6 +41,10 @@ var line = {};
 
 var graphit = function (names,values) {
 
+	if (typeof(names) == 'undefined' || names.length == 0) {
+		$("#error").append("no data yet, browse a few websites and try again in a few minutes");
+		return;
+	}
 	$('#overallUsage').width = 10;
 	$('#overallUsage').width = $('#overallUsage').width;
 	$('#hourUsage').width = ('#hourUsage').width;
