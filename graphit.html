@@ -48,7 +48,7 @@ var graphit = function () {
 			//convert data to minutes
 			//data is collected with a frequency of 10 seconds, so multiply by 6
 			for(var i = 0; i < data['counts'].length; i++) {
-				data['counts'][i] *= .6;
+				data['counts'][i] *= 1.0/6;
 			}
 			var param = {"names":data['hosts'], "values":data['counts']};
 			Graphit.bargraph(param, 'overallUsage',  
