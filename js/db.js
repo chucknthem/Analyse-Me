@@ -54,32 +54,34 @@ var DB = (function() {
 				);
 			});//end transaction
 		},
-		'fetchBest':function(n, callback) {
+		'fetchBest':function(n, callback, err_call) {
 			if(!this.db) {
-				return;
-			}
-			this.db.transaction(function(tx) {
-				tx.executeSql("SELECT host, SUM(count) as count FROM analyseMe GROUP BY host ORDER BY count DESC LIMIT " + n, [], 
-				function(tx, result) {
-					var len = result.rows.length;                         
-					var data = {};
-					data['hosts'] = [];
-					data['counts'] = [];
-					for (var i = 0; i < len; i++) {
-						data['hosts'].push(result.rows.item(i)['host']);
-						data['counts'].push(result.rows.item(i)['count']);
+				if(err_call) err_call("dabase not connected");
+			} else {
+				this.db.transaction(function(tx) {
+					tx.executeSql("SELECT host, SUM(count) as count FROM analyseMe GROUP BY host ORDER BY count DESC LIMIT " + n, [], 
+					function(tx, result) {
+						var len = result.rows.length;                         
+						var data = {};
+						data['hosts'] = [];
+						data['counts'] = [];
+						for (var i = 0; i < len; i++) {
+							data['hosts'].push(result.rows.item(i)['host']);
+							data['counts'].push(result.rows.item(i)['count']);
+						}
+						callback(data);
+					}, function(tx, error) {
+						if(err_call) err_call(error.message);
+						console.error("select error:" + error.message);
 					}
-					callback(data);
-				}, function(tx, error) {
-					console.error("select error:" + error.message);
-				}
-				);
-			});
+					);
+				});
+			}
 		},
 		/*
 		 * try to create the db if it doesn't exist
 		 */
-		'initDB':function() {
+		'init':function() {
 				if(!this.db) return;
 				this.db.transaction(
 					function(tx) {

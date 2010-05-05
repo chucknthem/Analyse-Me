@@ -1,11 +1,13 @@
 {
 	"name": "Analyse Me",
-	"version": "1.3",
+	"version": "1.4",
 	"background_page": "background.html",
 	"content_scripts": [
     {
+		"all_frames": true,
+      "js": ["contentscript.js"],
       "matches": ["http://*/*","https://*/*"],
-      "js": ["contentscript.js"]
+		"run_at": "document_end"
     }
   ],
 	"browser_action": {

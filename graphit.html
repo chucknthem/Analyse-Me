@@ -1,11 +1,12 @@
 <html>
 <head>
 <title> graph it</title>
-<script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
-<script type="text/javascript" src="js/db.js"></script>
 <script src="RGraph/libraries/RGraph.common.js" ></script>
 <script src="RGraph/libraries/RGraph.hbar.js" ></script>
 <script src="RGraph/libraries/RGraph.line.js" ></script>
+<script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="js/db.js"></script>
+<script src="js/graphit.js"></script>
 
 <style type="text/css">
 body {
@@ -36,47 +37,35 @@ body {
 </div>
 <canvas id="dailyUsage" width="800" height="450"></canvas>
 <script>
-var bar = {};
-var line = {};
+	DB.init();
 
-var graphit = function (names,values) {
-
-	if (typeof(names) == 'undefined' || names.length == 0) {
-		$("#error").append("no data yet, browse a few websites and try again in a few minutes");
-		return;
-	}
-	$('#overallUsage').width = 10;
-	$('#overallUsage').width = $('#overallUsage').width;
-	$('#hourUsage').width = ('#hourUsage').width;
-	
-	max = names[0].length;
-	for (i=1;i<names.length;i++) {
-		if (names[i].length > max) {
-			max = names[i].length;
+//var bar = {};
+//var line = {};
+var graphit = function () {
+	var errdiv = $('#error');
+	DB.fetchBest(10, 
+		function (data) { //succeed
+			//convert data to minutes
+			//data is collected with a frequency of 10 seconds, so multiply by 6
+			for(var i = 0; i < data['counts'].length; i++) {
+				data['counts'][i] *= .6;
+			}
+			var param = {"names":data['hosts'], "values":data['counts']};
+			Graphit.bargraph(param, 'overallUsage',  
+				function(message) { 
+					console.log(message);
+					errdiv.append(message);
+				});
+		},
+		function (err_message) { //error
+			$('error').append(err_message);
+			console.error(err_message);
 		}
-	}
-	
-	var size = (max+1)*2.5;
-	
-	document.getElementById('overallUsage').height = 450 + 2*size;
-	document.getElementById('overallUsage').width = 800 + size*4;
-	document.getElementById('overallUsage').style.cssText = "margin-top:-"+size+"px; margin-bottom:-"+size+"px;";
-	
-	bar = new RGraph.HBar('overallUsage', values);
-	bar.Set('chart.labels', names);
-	bar.Set('chart.gutter', size);
-	bar.Set('chart.background.barcolor1', 'rgba(255,255,255,1)');
-	bar.Set('chart.background.barcolor2', 'rgba(255,255,255,1)');
-	bar.Set('chart.background.grid', true);
-	bar.Set('chart.colors', ['red', 'orange','yellow','green','blue','purple','black','cyan','Chocolate','Magenta']);
-		
-	bar.Draw();
-};
-
-var filterData = function(data) {
-
+	);
 }
-
+window.onload = graphit;
+window.setInterval("graphit()", 10000);
+/*
 var hourData;
 var animateScrollBar = null;
 window.onload = function () {
@@ -164,6 +153,7 @@ window.onload = function () {
 	});
 	window.setInterval ('DB.fetchBest(10, function (data) {graphit (data.hosts,[data.counts]);});',10000);
 }
+	*/
 </script>
 
 </body>
