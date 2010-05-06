@@ -26,8 +26,8 @@ var Graphit = {
 		var size = max*3;
 
 		canvas.width = 400 + size*4;
-		canvas.style.setProperty("margin-top", size);
-		canvas.style.setProperty("margin-bottom", size);
+		canvas.style.setProperty("margin-top", 15);
+		canvas.style.setProperty("margin-bottom", 15);
 
 		var bar = new RGraph.HBar(canvas.id, [values]);
 		bar.Set('chart.labels', names);

@@ -8,11 +8,10 @@
 	</head>
 	<body>
 	<div id="error" class="error"></div>
-	<canvas id="overallUsage" width="400" height="320"></canvas>
+	<canvas id="overallUsage" width="500" height="450"></canvas>
 
 	<button onclick="chrome.tabs.create ({'url':'graphit.html'});">GraphIt</button>
 		<script>
-			DB.init();
 		var errdiv = $('#error');
 		var graphit = function () {
 			DB.fetchBest(10, 
