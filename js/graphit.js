@@ -7,6 +7,7 @@ var Graphit = {
 		if(!canvas_id) {
 			err_call('invalid canvas_id');
 		}
+		var title = data['title']
 		var names = data['names'];
 		var values = data['values'];
 		if (typeof(names) == 'undefined' || names.length == 0) {
@@ -34,7 +35,7 @@ var Graphit = {
 		bar.Set('chart.gutter', size);
 		bar.Set('chart.background.barcolor1', 'rgba(255,255,255,1)');
 		bar.Set('chart.background.barcolor2', 'rgba(255,255,255,1)');
-		bar.Set('chart.title', 'Top 10 domains vs time spent(in minutes)');
+		bar.Set('chart.title', title);
 		bar.Set('chart.background.grid', true);
 		bar.Set('chart.colors', ['red', 'orange','yellow','green','blue','purple','black','cyan','Chocolate','Magenta']);
 		bar.Draw();

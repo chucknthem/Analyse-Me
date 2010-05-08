@@ -7,6 +7,11 @@ var DB = (function() {
 	 * endDate - set to today if not specified
 	 * perDay - if true, return results by day and display a cumulative count
 	 * limit - maximum number of rows to return
+	 * order - field to order by
+	 * rorder - field to order by descending
+	 * 
+	 * if both order and rorder are specified, the result is undefined. 
+	 * i.e. don't do it.
 	 * FIXME - do error checks on param format
 	 */
 	var buildQuery = function(params) {
@@ -34,6 +39,12 @@ var DB = (function() {
 				sql += whereSql[key];
 				args.push(params[key]);
 			}
+		}
+		if (typeof(params['order']) != 'undefined') {
+			sql += " ORDER BY " + params['order'];
+		}
+		if (typeof(params['rorder']) != 'undefined') {
+			sql += " ORDER BY " + params['order'] + " DESC ";
 		}
 		if (typeof(params['perDay']) != 'undefined') {
 			sql += " GROUP BY host, date ";
@@ -65,16 +76,18 @@ var DB = (function() {
 				var sqlArray = buildQuery(params);
 				var sql = sqlArray[0];
 				var args = sqlArray[1];
-				console.log(sqlArray);
+				//console.log(sqlArray);
 				tx.executeSql(sql, args,
 					function(tx, result) {
+						//console.log(sql);
+						//console.log(args);
 						var data = [];
 						var len = result.rows.length;
 						for (var i = 0; i < len; i++) {
 							data.push(result.rows.item(i));
 						}
-						console.log(data);
-						if(typeof(callback) == 'Function') {
+						//console.log(data);
+						if(typeof(callback) == 'function') {
 							callback(data);
 						}
 					},
@@ -89,12 +102,23 @@ var DB = (function() {
 			});//end transaction
 		},
 		//new Date(year, month, day, hours, minutes, seconds, milliseconds)
-		'fetchPastNDays':function (n, callback, err_call) {
+		'fetchPastNDays':function (n, limit, callback, err_call) {
 			if (!db) return;
-			var today = new Date().toISOString().split(/T/)[0].split('-');
-			var nDaysAgo = new Date(today[0], today[1], today[2]);
+			var today =  new Date()
+			var todayStr = today.toISOString().split(/T/)[0].split('-');
+			var nDaysAgo = new Date(
+					todayStr[0],  		//year
+					todayStr[1] - 1,	//month (jan = 0)
+					todayStr[2] - n,	//day
+					today.getHours(),	//hour
+					today.getMinutes()//minutes
+					);
 			var startDate = nDaysAgo.toISOString().split(/T/)[0];
-			this.fetch({'startDate':startDate}, callback, err_call);
+			var param = {'startDate':startDate};
+			if (limit) {
+				param['limit'] = limit;
+			}
+			this.fetch(param, callback, err_call);
 		},	
 		'fetchBest':function(n, callback, err_call) {
 			if(!db) {

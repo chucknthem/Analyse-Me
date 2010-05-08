@@ -31,29 +31,37 @@ body {
 <body>
 	<div id="error" class="error"></div>
 	<canvas id="overallUsage" width="800" height="450"></canvas>
+	<canvas id="7dayUsage" width="800" height="450"></canvas>
 	<canvas id="hourUsage" width="800" height="450"></canvas>
 	<div id="hourScrollWrapper">
 	<canvas id="hourScroll" width="500px" height="15px" ></canvas>
 </div>
 <canvas id="dailyUsage" width="800" height="450"></canvas>
 <script>
+var mergeDays = function(data) {
+
+}
 //var bar = {};
 //var line = {};
 var graphit = function () {
 	var errdiv = $('#error');
-	DB.fetchBest(10, 
-		function (data) { //succeed
-			//convert data to minutes
-			//data is collected with a frequency of 10 seconds, so multiply by 6
-			for(var i = 0; i < data['counts'].length; i++) {
-				data['counts'][i] *= 1.0/6;
-			}
-			var param = {"names":data['hosts'], "values":data['counts']};
-			Graphit.bargraph(param, 'overallUsage',  
-				function(message) { 
-					console.log(message);
-					errdiv.append(message);
-				});
+	DB.fetchPastNDays(7,10, function (data) { //succeed
+		if(data.length == 0) {
+			errdiv.html("no data for this yet");
+			return;
+		}
+		console.log(data);
+		//convert data to minutes
+		//data is collected with a frequency of 10 seconds, so multiply by 6
+		for(var i = 0; i < data.length; i++) {
+			data[i]['count'] *= 1.0/6;
+		}
+		var param = {"title":"Top 10 in last 7 days (in minutes)", "names":data['hosts'], "values":data['counts']};
+		Graphit.bargraph(param, 'overallUsage',  
+			function(message) { 
+				console.log(message);
+				errdiv.append(message);
+			});
 		},
 		function (err_message) { //error
 			$('error').append(err_message);
