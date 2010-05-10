@@ -4,7 +4,7 @@ var Graphit = {
 	 */
 	bargraph: function(data, canvas_id, err_call) {
 		var canvas = document.getElementById(canvas_id);
-		if(!canvas_id) {
+		if(!canvas) {
 			err_call('invalid canvas_id');
 		}
 		var title = data['title']

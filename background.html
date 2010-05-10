@@ -2,50 +2,39 @@
 	<head>
 		<script src="js/jquery-1.4.2.min.js"></script>
 		<script src="js/db.js"></script>
+		<script src="js/lib.js"></script>
 	</head>
 	<body>
 		<div id="data">
 		</div>
 		<script>
 			DB.init();
-			/*FIXME we need a better way to do activity detection (see contentscript.js),
-			it doesn't work very well on js intensive websites like gmail.com
-			until we fix that, well just ignore the browser idle problem for now
+			//listen for changes to detect activity
+			chrome.windows.onFocusChanged.addListener(
+				function(windowid) {
+					localStorage['lastActive'] = new Date().getTime();
+				});
+			chrome.tabs.onSelectionChanged.addListener(
+				function(tabid) {
+					localStorage['lastActive'] = new Date().getTime();
+				});
+
 			function fetch_url() {
-				chrome.tabs.getSelected(null, function(tab) {
-					chrome.tabs.sendRequest(tab.id, {}, function(response) {
-						//console.log('response:' + response.value);
-						if (response.value == 1) {
-							var d = new Date();
-							var rowObj = {};
-							var urlArray = tab.url.split(/\//);
-							//only count http and https pages
-							if(urlArray[0] == 'http:' || urlArray[0] == 'https:') {
-								rowObj['host'] = urlArray[2].replace(/^www\./, '');
-								var dateStr = d.toISOString().split(/T/)[0];
-								rowObj['date'] = dateStr;
-								rowObj['hour'] = d.getHours();
-								DB.updateRow(rowObj);
-							}
+				if(Lib.isActive()) {//only update chrome was active
+					chrome.tabs.getSelected(null, function(tab) {
+						var d = new Date();
+						var rowObj = {};
+						var urlArray = tab.url.split(/\//);
+						//only count http and https pages
+						if(urlArray[0] == 'http:' || urlArray[0] == 'https:') {
+							rowObj['host'] = urlArray[2].replace(/^www\./, '');
+							var dateStr = d.toISOString().split(/T/)[0];
+							rowObj['date'] = dateStr;
+							rowObj['hour'] = d.getHours();
+							DB.updateRow(rowObj);
 						}
 					});
-				});
-			}
-			*/
-			function fetch_url() {
-				chrome.tabs.getSelected(null, function(tab) {
-					var d = new Date();
-					var rowObj = {};
-					var urlArray = tab.url.split(/\//);
-					//only count http and https pages
-					if(urlArray[0] == 'http:' || urlArray[0] == 'https:') {
-						rowObj['host'] = urlArray[2].replace(/^www\./, '');
-						var dateStr = d.toISOString().split(/T/)[0];
-						rowObj['date'] = dateStr;
-						rowObj['hour'] = d.getHours();
-						DB.updateRow(rowObj);
-					}
-				});
+				}
 			}
 			window.setInterval('fetch_url()', 10000);
 		</script>

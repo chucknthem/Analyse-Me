@@ -1,41 +1,192 @@
 <html>
-	<head>
-		<script src="js/jquery-1.4.2.min.js"></script>
-		<script src="RGraph/libraries/RGraph.common.js" ></script>
-		<script src="RGraph/libraries/RGraph.hbar.js" ></script>
-		<script src="js/db.js"></script>
-		<script src="js/graphit.js"></script>
-	</head>
-	<body>
-	<div id="error" class="error"></div>
-	<canvas id="overallUsage" width="500" height="450"></canvas>
+<head>
+<title> graph it</title>
+<script src="RGraph/libraries/RGraph.common.js" ></script>
+<script src="RGraph/libraries/RGraph.hbar.js" ></script>
+<script src="RGraph/libraries/RGraph.line.js" ></script>
+<script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="js/db.js"></script>
+<script src="js/graphit.js"></script>
 
+<style type="text/css">
+#maindiv {
+	text-align:center;
+}
+</style>
+</head>
+<body>
+<div id="maindiv">
+		<a href="javascript:setGraphRange('today');">today</a>|
+		<a href="javascript:setGraphRange('past7days');">past 7 days</a>|
+		<a href="javascript:setGraphRange('overall');">overall</a>
+
+</div>
+	<div id="error" class="error"></div>
+	<canvas id="usage" width="800" height="450"></canvas>
 	<button onclick="chrome.tabs.create ({'url':'graphit.html'});">GraphIt</button>
-		<script>
-		var errdiv = $('#error');
-		var graphit = function () {
-			DB.fetchBest(10, 
-				function (data) { //succeed
-					//convert data to minutes
-					//data is collected with a frequency of 10 seconds, so multiply by 6
-					for(var i = 0; i < data['counts'].length; i++) {
-						data['counts'][i] *= 1.0/6;
-					}
-					var param = {"names":data['hosts'], "values":data['counts']};
-					Graphit.bargraph(param, 'overallUsage',  
-						function(message) { 
-							console.log(message);
-							errdiv.append(message);
-						});
-				},
-				function (err_message) { //error
-					errdiv.append(err_message);
-					console.error(err_message);
-				}
-			);
+	<!--awesome scroll bar
+	<div id="hourScrollWrapper">
+	<canvas id="hourScroll" width="500px" height="15px" ></canvas>
+	-->
+<script>
+var setGraphRange = function(rangeType) {
+	localStorage['graphtype'] = rangeType;
+	graphit();
+}
+var makeGraphable = function(dbdata) {
+	var graphdata = {'host':[], 'date':[], 'count':[]};
+	for(var i = 0; i < dbdata.length; i++) {
+		graphdata['host'].push(dbdata[i]['host']);
+		graphdata['date'].push(dbdata[i]['date']);
+		graphdata['count'].push(dbdata[i]['count']);
+	}
+	return graphdata;
+}
+/*
+ * n - past n days
+ * title - title of the graph
+ */
+function graphPastNDays(n, title) {
+	var errdiv = $('#error');
+	DB.fetchPastNDays(n,10, 
+		function (dbdata) { //succeed
+			var graphdata = makeGraphable(dbdata);
+			var param = {"title":title, "names":graphdata['host'], "values":graphdata['count']};
+
+			errdiv.html("");
+			Graphit.bargraph(param, 'usage',  
+				function(message) {  //error graphing
+					console.log(message);
+					errdiv.html(message);
+				});
+		},
+		function (err_message) { //error
+			$('error').html(err_message);
+			console.error(err_message);
 		}
-		window.onload = graphit;
-		window.setInterval("graphit();", 10000);
-		</script>
-	</body>
+	);
+}
+var graphit = function () {
+	var errdiv = $('#error');
+	if(localStorage['graphtype'] == 'past7days') {
+		graphPastNDays(7, "Top 10 in last 7 days (in minutes)");
+	} else if(localStorage['graphtype'] == 'today') {
+		graphPastNDays(1, "Top 10 today (in minutes)");
+	} else {
+		DB.fetchBest(10, 
+			function(data) {//succeed
+				if(data['hosts'].length == 0) {
+					errdiv.html("no data for this yet");
+				}
+				var param = {"title":"Top 10 ovarall (in minutes)", "names":data['hosts'], "values":data['counts']};
+				Graphit.bargraph(param, 'usage',  
+					function(message) { 
+						console.log(message);
+						errdiv.html(message);
+					});
+			},
+			function (err_message) { //error
+				$('error').html(err_message);
+				console.error(err_message);
+			}
+		);
+	}
+}
+window.onload = graphit;
+window.setInterval("graphit()", 10000);
+//var bar = {};
+//var line = {};
+/*
+//awesome scroll bar
+var hourData;
+var animateScrollBar = null;
+window.onload = function () {
+	DB.fetchBest(10, function (data) {
+		graphit (data.hosts,[data.counts]);
+	});
+	DB.fetchPerHour(null, function(data) {
+		hourData = data;
+		var canvas = $('#hourScroll')[0];
+		var ctx = canvas.getContext("2d");
+		var drag = false;
+		var clearFillStyle = '#ccc';
+		//x,y,width,height
+		var scrollBar = {};
+		scrollBar.rect = [0,0,40,15];
+		scrollBar.fillStyle = '#aaa';
+		scrollBar.velocity = 1;
+		scrollBar.target = [0,0,40,15]; 
+		scrollBar.lineWidth = 1;
+		var moveInterval = null
+		function renderScrollBar() {
+			//bar background
+			ctx.lineWidth = scrollBar.lineWidth;
+			ctx.fillStyle = clearFillStyle;
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			//day dividers
+			ctx.fillStyle = '#000';
+			ctx.beginPath();
+			for (var i = 1; i < 7; i++) {
+				ctx.moveTo(i*canvas.width/7, 0);
+				ctx.lineTo(i*canvas.width/7, canvas.height);
+			}	
+			ctx.stroke();
+			ctx.closePath();
+
+			ctx.fillStyle = scrollBar.fillStyle;
+			ctx.fillRect(scrollBar.rect[0], scrollBar.rect[1], scrollBar.rect[2], scrollBar.rect[3]);
+		}
+		function setTarget(pos) {
+			scrollBar.target[0] = pos - scrollBar.target[2]/2;
+			if(scrollBar.target[0] < 0) {
+				scrollBar.target[0] = 0;
+			}
+			if(scrollBar.target[0] + scrollBar.target[2] > canvas.width) {
+				scrollBar.target[0] = canvas.width - scrollBar.target[2];
+			}
+		}
+		animateScrollBar = function() {
+			var diff = scrollBar.target[0] - scrollBar.rect[0];
+			if (diff != 0) {
+				var step = diff/3;
+				scrollBar.rect[0] += step;
+				if(scrollBar.rect[0] < 0) {
+					scrollBar.rect[0] = 0;
+				}
+				if(scrollBar.rect[0] + scrollBar.rect[2] > canvas.width) {
+					scrollBar.rect[0] = canvas.width - scrollBar.rect[2];
+				}
+
+				renderScrollBar();
+			} else {
+				if(moveInterval) {
+					clearInterval(moveInterval);
+				}
+			}
+		}
+		$('#hourScroll').mousemove(function(e) {
+			//e.pageY, e.clientY
+			if(drag) {
+				//TODO check if it's within the rec region
+				setTarget(e.offsetX);
+			}
+		});
+		$('#hourScroll').mousedown(function(e) {
+			setTarget(e.offsetX);
+			moveInterval = setInterval('animateScrollBar()', 50);
+			drag = true;
+		});
+		$('body').mouseup(function(e) {
+			if(moveInterval) {
+				clearInterval(moveInterval);
+			}
+			drag = false;
+		});
+	});
+	window.setInterval ('DB.fetchBest(10, function (data) {graphit (data.hosts,[data.counts]);});',10000);
+}
+	*/
+</script>
+
+</body>
 </html>

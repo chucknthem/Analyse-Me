@@ -32,42 +32,50 @@ body {
 </style>
 </head>
 <body>
-	<div id="maindiv">
-		<a href="#">past 7 days</a>|
-		<a href="#">overall</a>
+<div id="maindiv">
+	<h3>Detailed view</h3>
+	<p>not yet implemented. This is going to have multiple graphs with different views in the future</p>
+		<a href="javascript:setGraphRange('today');">today</a>|
+		<a href="javascript:setGraphRange('past7days');">past 7 days</a>|
+		<a href="javascript:setGraphRange('overall');">overall</a>
 	<div id="error" class="error"></div>
-	<canvas id="overallUsage" width="800" height="450"></canvas>
-	<canvas id="7dayUsage" width="800" height="450"></canvas>
-	<canvas id="hourUsage" width="800" height="450"></canvas>
+	<canvas id="usage" width="800" height="450"></canvas>
+	<!--awesome scroll bar
 	<div id="hourScrollWrapper">
 	<canvas id="hourScroll" width="500px" height="15px" ></canvas>
+	-->
 </div>
-<canvas id="dailyUsage" width="800" height="450"></canvas>
 <script>
-var mergeDays = function(data) {
-
+var setGraphRange = function(rangeType) {
+	localStorage['graphtype'] = rangeType;
+	graphit();
 }
-//var bar = {};
-//var line = {};
-var graphit = function () {
+var makeGraphable = function(dbdata) {
+	var graphdata = {'host':[], 'date':[], 'count':[]};
+	for(var i = 0; i < dbdata.length; i++) {
+		graphdata['host'].push(dbdata[i]['host']);
+		graphdata['date'].push(dbdata[i]['date']);
+		graphdata['count'].push(dbdata[i]['count']);
+	}
+	return graphdata;
+}
+/*
+ * n - past n days
+ * title - title of the graph
+ */
+function graphPastNDays(n, title) {
 	var errdiv = $('#error');
-	DB.fetchPastNDays(7,10, function (data) { //succeed
-		if(data.length == 0) {
-			errdiv.html("no data for this yet");
-			return;
-		}
-		console.log(data);
-		//convert data to minutes
-		//data is collected with a frequency of 10 seconds, so multiply by 6
-		for(var i = 0; i < data.length; i++) {
-			data[i]['count'] *= 1.0/6;
-		}
-		var param = {"title":"Top 10 in last 7 days (in minutes)", "names":data['hosts'], "values":data['counts']};
-		Graphit.bargraph(param, 'overallUsage',  
-			function(message) { 
-				console.log(message);
-				errdiv.append(message);
-			});
+	DB.fetchPastNDays(n,10, 
+		function (dbdata) { //succeed
+			var graphdata = makeGraphable(dbdata);
+			var param = {"title":title, "names":graphdata['host'], "values":graphdata['count']};
+
+			errdiv.html("");
+			Graphit.bargraph(param, 'usage',  
+				function(message) {  //error graphing
+					console.log(message);
+					errdiv.html(message);
+				});
 		},
 		function (err_message) { //error
 			$('error').html(err_message);
@@ -75,9 +83,38 @@ var graphit = function () {
 		}
 	);
 }
+var graphit = function () {
+	var errdiv = $('#error');
+	if(localStorage['graphtype'] == 'past7days') {
+		graphPastNDays(7, "Top 10 in last 7 days (in minutes)");
+	} else if(localStorage['graphtype'] == 'today') {
+		graphPastNDays(1, "Top 10 today (in minutes)");
+	} else {
+		DB.fetchBest(10, 
+			function(data) {//succeed
+				if(data['hosts'].length == 0) {
+					errdiv.html("no data for this yet");
+				}
+				var param = {"title":"Top 10 ovarall (in minutes)", "names":data['hosts'], "values":data['counts']};
+				Graphit.bargraph(param, 'usage',  
+					function(message) { 
+						console.log(message);
+						errdiv.html(message);
+					});
+			},
+			function (err_message) { //error
+				$('error').html(err_message);
+				console.error(err_message);
+			}
+		);
+	}
+}
 window.onload = graphit;
 window.setInterval("graphit()", 10000);
+//var bar = {};
+//var line = {};
 /*
+//awesome scroll bar
 var hourData;
 var animateScrollBar = null;
 window.onload = function () {
