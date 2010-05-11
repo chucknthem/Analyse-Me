@@ -18,6 +18,10 @@
 				function(tabid) {
 					localStorage['lastActive'] = new Date().getTime();
 				});
+			chrome.tabs.onUpdated.addListener(
+				function(tabId, changeInfo, tab) {
+					localStorage['lastActive'] = new Date().getTime();
+				});
 
 			function fetch_url() {
 				if(Lib.isActive()) {//only update chrome was active

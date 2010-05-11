@@ -50,15 +50,6 @@ var setGraphRange = function(rangeType) {
 	localStorage['graphtype'] = rangeType;
 	graphit();
 }
-var makeGraphable = function(dbdata) {
-	var graphdata = {'host':[], 'date':[], 'count':[]};
-	for(var i = 0; i < dbdata.length; i++) {
-		graphdata['host'].push(dbdata[i]['host']);
-		graphdata['date'].push(dbdata[i]['date']);
-		graphdata['count'].push(dbdata[i]['count']);
-	}
-	return graphdata;
-}
 /*
  * n - past n days
  * title - title of the graph
@@ -67,7 +58,7 @@ function graphPastNDays(n, title) {
 	var errdiv = $('#error');
 	DB.fetchPastNDays(n,10, 
 		function (dbdata) { //succeed
-			var graphdata = makeGraphable(dbdata);
+			var graphdata = Lib.makeGraphable(dbdata);
 			var param = {"title":title, "names":graphdata['host'], "values":graphdata['count']};
 
 			errdiv.html("");

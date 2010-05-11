@@ -61,6 +61,8 @@ var DB = (function() {
 		}
 		return [sql, args];
 	}
+
+	/* public methods */
 	var f = {
 		'connect':function() {
 			if(db) return;
@@ -70,13 +72,26 @@ var DB = (function() {
 			} 
 		},
 		/*
-		 * returned resolution for count is in minutes
+		 * fetch rows from the data base based on params
+		 * params are used to construct an sql query
 		 *
-		 * Supported parameters: 
-		 * startDate - from beginning to endDate if not specified
-		 * endDate - set to today if not specified
-		 * perDay - if true, return results by day and display a cumulative count
-		 * limit - maximum number of rows to return
+		 * resolution for count is in minutes
+		 *
+		 * @param params
+		 *  - Supported parameters: 
+		 *  - @see buildQuery
+		 *
+		 * @param callback
+		 *  - function(dbdata) { //function for dealing with data} 
+		 *  - dbdata is an array of table rows: host, hour, date, count
+		 *  - e.g. [{host:google.com, hour:3, date:2010-04-05, count:45}, 
+		 *  			{host:facebook.com, hour:6, date:2010-04-05, count:58}, 
+		 *  			...]
+		 *
+		 * @param err_callback
+		 *  - function(err_msg) {}
+		 *  - err_msg is a string
+		 *
 		 */
 		'fetch':function(params, callback, err_call) {
 			if(!db || typeof(params) == 'undefined') return;

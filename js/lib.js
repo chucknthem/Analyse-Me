@@ -15,5 +15,19 @@ var Lib = {
 			return false;
 		}
 		return true;
+	},
+	/*
+	 * convert an array fetched by DB.fetch into an object that's easier for
+	 * RGraph to use
+	 *
+	 * @return {'host':[], 'count':[]}
+	 */
+	'makeGraphable': function(dbdata) {
+		var graphdata = {'host':[], 'count':[]};
+		for(var i = 0; i < dbdata.length; i++) {
+			graphdata['host'].push(dbdata[i]['host']);
+			graphdata['count'].push(dbdata[i]['count']);
+		}
+		return graphdata;
 	}
 }
