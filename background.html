@@ -10,6 +10,11 @@
 		<script>
 			DB.init();
 			function updateBadge(host) {
+				if(!host) {
+					chrome.browserAction.setBadgeText({'text':''});
+					chrome.browserAction.setTitle({'title':'AnalyseMe'});
+					return;
+				}
 				DB.fetchHostToday(host, function (data) {
 					if(data.length > 0) {
 						var text = String(Math.floor(data[0]['count']));
@@ -28,7 +33,6 @@
 					localStorage['lastActive'] = new Date().getTime();
 					chrome.tabs.get(tabid, function(tab) {
 						var host = Lib.getHostname(tab.url);
-						if(!host) return;
 						updateBadge(host);
 
 					});
@@ -38,7 +42,6 @@
 					localStorage['lastActive'] = new Date().getTime();
 					if(tab.selected && changeInfo['url']) {
 						var host = Lib.getHostname(changeInfo['url']);
-						if(!host) return;
 						updateBadge(host);
 					}
 				});
