@@ -29,5 +29,20 @@ var Lib = {
 			graphdata['count'].push(dbdata[i]['count']);
 		}
 		return graphdata;
+	},
+	/*
+	 * extract the host from url
+	 * returns null if url is not http or https
+	 */
+	'getHostname':function(url) {
+		var urlArray = url.split(/\//);                        
+		var host = null;
+		//only count http and https pages
+		if(urlArray[0] == 'http:' || urlArray[0] == 'https:') {
+			host = urlArray[2].replace(/^www\./, '');
+		}
+		return host;
+
 	}
+
 }

@@ -9,6 +9,15 @@
 		</div>
 		<script>
 			DB.init();
+			function updateBadge(host) {
+				DB.fetchHostToday(host, function (data) {
+					if(data.length > 0) {
+						var text = String(Math.floor(data[0]['count']));
+						chrome.browserAction.setBadgeText({'text':text});
+						chrome.browserAction.setTitle({'title':text + " minutes spent on "+host + ' today'});
+					}
+				});
+			}	
 			//listen for changes to detect activity
 			chrome.windows.onFocusChanged.addListener(
 				function(windowid) {
@@ -17,10 +26,21 @@
 			chrome.tabs.onSelectionChanged.addListener(
 				function(tabid) {
 					localStorage['lastActive'] = new Date().getTime();
+					chrome.tabs.get(tabid, function(tab) {
+						var host = Lib.getHostname(tab.url);
+						if(!host) return;
+						updateBadge(host);
+
+					});
 				});
 			chrome.tabs.onUpdated.addListener(
 				function(tabId, changeInfo, tab) {
 					localStorage['lastActive'] = new Date().getTime();
+					if(tab.selected && changeInfo['url']) {
+						var host = Lib.getHostname(changeInfo['url']);
+						if(!host) return;
+						updateBadge(host);
+					}
 				});
 
 			function fetch_url() {
@@ -32,7 +52,7 @@
 						//only count http and https pages
 						if(urlArray[0] == 'http:' || urlArray[0] == 'https:') {
 							rowObj['host'] = urlArray[2].replace(/^www\./, '');
-							var dateStr = d.toISOString().split(/T/)[0];
+							var dateStr = DB.getDateStr(d);
 							rowObj['date'] = dateStr;
 							rowObj['hour'] = d.getHours();
 							DB.updateRow(rowObj);

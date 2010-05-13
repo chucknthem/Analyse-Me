@@ -12,6 +12,7 @@ var DB = (function() {
 	 * limit - maximum number of rows to return
 	 * order - field to order by
 	 * rorder - field to order by descending
+	 * host - specific host only
 	 * 
 	 * if both order and rorder are specified, the result is undefined. 
 	 * i.e. don't do it.
@@ -23,7 +24,8 @@ var DB = (function() {
 		var where = false
 		var args = [];											//sql arguments
 		var whereSql = {"startDate":" date >= ? ", 
-							"endDate":" date <= ? "};	
+							"endDate":" date <= ? ",
+							"host":" host = ? "};	
 	  	if(typeof(params['totalOnly']) != 'undefined') {
 			sql += "'total' as date, ";
 			sql += " 0 hour, SUM(count) as count ";
@@ -193,6 +195,13 @@ var DB = (function() {
 					);
 				});
 			}
+		},
+		'fetchHostToday':function(host, callback, err_call) {
+			if (!db) return;
+			var today = new Date();
+			var todayStr = this.getDateStr(today);
+			var param = {'host':host, 'perDay':true, 'startDate':todayStr, 'endDate':todayStr};
+			this.fetch(param, callback, err_call);
 		},
 		/*
 		 * try to create the table(s) if it doesn't exist
