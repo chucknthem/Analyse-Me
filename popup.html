@@ -16,15 +16,24 @@
 </style>
 </head>
 <body>
-<div id="maindiv">
-		<a href="javascript:setGraphRange('today');">today</a>|
-		<a href="javascript:setGraphRange('past7days');">past 7 days</a>|
-		<a href="javascript:setGraphRange('overall');">overall</a>
+	<div id="content" style="display:none;">
+		<div id="maindiv">
+			<a href="javascript:setGraphRange('today');">today</a>|
+			<a href="javascript:setGraphRange('past7days');">past 7 days</a>|
+			<a href="javascript:setGraphRange('overall');">overall</a>
 
-</div>
-	<div id="error" class="error"></div>
-	<canvas id="usage" width="800" height="450"></canvas>
-	<button onclick="chrome.tabs.create ({'url':'graphit.html'});">GraphIt</button>
+		</div>
+		<div id="error" class="error"></div>
+		<canvas id="usage" width="800" height="450"></canvas>
+		<button onclick="chrome.tabs.create ({'url':'graphit.html'});">GraphIt</button>
+		<button onclick="chrome.tabs.create ({'url':'option.html'});">Options</button>
+	</div>
+	<div id="disabled" style="width:300px;">
+		AnalyseMe has been disabled...
+		<br>
+		Turn AnalyseMe on at the <button onclick="chrome.tabs.create ({'url':'option.html'});">Options</button> page.
+	</div>
+	
 	<!--awesome scroll bar
 	<div id="hourScrollWrapper">
 	<canvas id="hourScroll" width="500px" height="15px" ></canvas>
@@ -86,6 +95,12 @@ var graphit = function () {
 }
 window.onload = graphit;
 window.setInterval("graphit()", 10000);
+
+if (localStorage['enable'] == 1) {
+	$("#content").slideDown();
+	$("#disabled").slideUp(0);
+}
+
 //var bar = {};
 //var line = {};
 /*

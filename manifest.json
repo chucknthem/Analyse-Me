@@ -2,6 +2,7 @@
 	"name": "Analyse Me",
 	"version": "1.6",
 	"background_page": "background.html",
+	"options_page": "option.html",
 	"content_scripts": [
     {
 		"all_frames": true,

@@ -8,6 +8,13 @@
 		<div id="data">
 		</div>
 		<script>
+			if (typeof(localStorage['enable']) == "undefined") {   //first time running extention
+				localStorage['enable'] = 1;
+			}
+			if (localStorage['enable'] == 0) {
+				chrome.browserAction.setIcon({path:"icon-disable.png"})
+			}
+			
 			DB.init();
 			function updateBadge(host) {
 				if(!host) {
@@ -47,7 +54,7 @@
 				});
 
 			function fetch_url() {
-				if(Lib.isActive()) {//only update chrome was active
+				if(Lib.isActive() && localStorage['enable'] == 1) {//only update chrome was active and the extention is active
 					chrome.tabs.getSelected(null, function(tab) {
 						var d = new Date();
 						var rowObj = {};

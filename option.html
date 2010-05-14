@@ -1,16 +1,58 @@
 <html>
 	<head>
 		<script src="js/jquery-1.4.2.min.js"></script>
-	</head>
-	<body>
-		
+		<link rel="stylesheet" type="text/css" href="style.css" />
 		<script>
-		chrome.tags.getSelected(null, function(tab) {
-			$('#data').append(tab);
-		});
+			toggle_enable = function(toggle) {
+				if (toggle==true) {
+					localStorage['enable'] = 1-localStorage['enable'];
+				}
+				if (localStorage['enable'] == 1) {
+					$('#options').slideDown();
+					$("#disable_button").html("Disable AnalyseMe")
+					chrome.browserAction.setIcon({path:"icon.png"})
+				} else {
+					$('#options').slideUp();
+					$("#disable_button").html("Enable AnalyseMe")
+					chrome.browserAction.setIcon({path:"icon-disable.png"})
+				}
+			};
 		</script>
-		<div id="data">
-
+	</head>
+	<body onload="toggle_enable(false);">
+		<div class="level1">
+			<center>AnalyseMe controle pannle</center>
+			<button id="disable_button" onclick="toggle_enable(true);$('#delete').slideUp();">Enable AnalyseMe</button>
+			<br>
+			<div id="options" style="display:none;">
+				<div class="level2">
+					<a href="javascript:;" onclick="$('#delete').slideToggle();$('#delete_all').slideUp();$('#delete_some').slideUp();">show/hide delete data</a> (not yet implemented)
+					<div id="delete" style="display:none;">
+						<button onclick="$('#delete_all').slideToggle();$('#delete_some').slideUp();">show/hide delete all data</button>
+						<br>
+						<div id="delete_all" style="display:none;" class="level_warning">
+							Caution, this action will remove all data AnalyseMe has stored.
+							<br>
+							This action is not reversable.
+							<br>
+							<button onclick="alert('opps... this feature has not been implemented yet... Please stay tuned.');">Delete all data</button>
+							<button onclick="$('#delete_all').slideUp();">cancle</button>
+						</div>
+						<button onclick="$('#delete_some').slideToggle();$('#delete_all').slideUp();">show/hide delete some data</button>
+						<div id="delete_some" style="display:none;" class="level_infomation">
+							delete infomation from cirtan domain, or from a time period goes here...
+						</div>
+					</div>
+				</div>
+				<script>
+				chrome.tabs.getSelected(null, function(tab) {
+					$('#data').append(tab);
+				});
+				</script>
+				<div id="data" class="level2">
+					cool
+				</div>
+			</div>
 		</div>
 	</body>
 </html>

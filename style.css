@@ -1,0 +1,39 @@
+.level1 {
+	background-color:#6666FF;
+	border-color:#2222FF;
+	border-width:1px;
+	border-style:solid;
+	-webkit-border-radius: 5px;
+	margin:5px;
+	padding:5px;
+}
+
+.level2 {
+	background-color:#AAAAFF;
+	border-color:#4444FF;
+	border-width:1px;
+	border-style:solid;
+	-webkit-border-radius: 5px;
+	margin:5px;
+	padding:5px;
+}
+
+.level_warning {
+	background-color:#FF6666;
+	border-color:#FF2222;
+	border-width:1px;
+	border-style:solid;
+	-webkit-border-radius: 5px;
+	margin:5px;
+	padding:5px;
+}
+
+.level_infomation {
+	background-color:#FFFF88;
+	border-color:#FFFF11;
+	border-width:2px;
+	border-style:solid;
+	-webkit-border-radius: 5px;
+	margin:5px;
+	padding:5px;
+}
