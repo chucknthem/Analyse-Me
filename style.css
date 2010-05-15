@@ -1,4 +1,6 @@
 .level1 {
+	position:relative;
+	top:20%;
 	background-color:#6666FF;
 	border-color:#2222FF;
 	border-width:1px;
@@ -8,7 +10,6 @@
 	padding:5px;
 
 	width:600px;
-	margin-top:100px;
 	margin-left:auto; /*centering*/
 	margin-right:auto;
 }
@@ -41,4 +42,34 @@
 	-webkit-border-radius: 5px;
 	margin:5px;
 	padding:5px;
+}
+
+#domain_selector_input {
+	width:100%;
+	background-image: url(search_icon.png);
+	background-repeat: no-repeat;
+	padding: 5px;
+	font-size: 14px;
+	background-position: 99% 50%;
+	border: 1px solid #ccc;
+	padding-right:24px;
+	margin-bottom:0px;
+}
+
+#domain_selector_list {
+	height:0px; /*to be changed...*/
+	margin-left:5px;
+	margin-right:5px;
+	margin-top:0px;
+	background-color:#FFF;
+	border: solid #ccc;
+	border-left-width:1px;
+	border-right-width:1px;
+	border-bottom-width:1px;
+	border-top-width:0px;
+	overflow:auto;
+}
+
+#domain_selector {
+	width:200px;
 }

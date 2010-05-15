@@ -17,41 +17,144 @@
 					chrome.browserAction.setIcon({path:"icon-disable.png"})
 				}
 			};
+			show = function (state) {
+				if (state == 0) {
+					$('#delete').slideUp();
+					$('#delete_all').slideUp();
+					$('#delete_all_button').slideDown();
+					$('#delete_some_time').slideUp();
+					$('#delete_some_time_button').slideDown();
+					$('#delete_some_dom').slideUp();
+					$('#delete_some_dom_button').slideDown();
+				} else if (state == 1) {
+					$('#delete').slideToggle();
+					$('#delete_all').slideUp();
+					$('#delete_all_button').slideDown();
+					$('#delete_some_time').slideUp();
+					$('#delete_some_time_button').slideDown();
+					$('#delete_some_dom').slideUp();
+					$('#delete_some_dom_button').slideDown();
+				} else if (state == 2) {
+					$('#delete_all').slideToggle();
+					$('#delete_all_button').slideToggle();
+					$('#delete_some_time').slideUp();
+					$('#delete_some_time_button').slideDown();
+					$('#delete_some_dom').slideUp();
+					$('#delete_some_dom_button').slideDown();
+				} else if (state == 3) {
+					$('#delete_some_time').slideToggle();
+					$('#delete_some_time_button').slideToggle();
+					$('#delete_all').slideUp();
+					$('#delete_all_button').slideDown();
+					$('#delete_some_dom').slideUp();
+					$('#delete_some_dom_button').slideDown();
+				} else if (state == 4) {
+					$('#delete_some_dom').slideToggle();
+					$('#delete_some_dom_button').slideToggle();
+					$('#delete_all').slideUp();
+					$('#delete_all_button').slideDown();
+					$('#delete_some_time').slideUp();
+					$('#delete_some_time_button').slideDown();
+				} 
+			};
+			
+			getUrlList = function () {
+				//TODO
+				return ['facebook.com','google.com','mail.google.com'];
+			};
+			
+			filterResults = function () {
+				var query = $("#domain_selector_input")[0].value.toLowerCase();
+				if (query == '') {
+					$("#domain_selector_list").animate ({height:0});
+					return;
+				}
+				$("#domain_selector_list").html("");
+				
+				var numfound = 0;
+				var url = getUrlList();
+				for (var i=0; i<url.length; i++) {
+					var textPos = url[i].toLowerCase().indexOf( query );
+					
+					text=url[i];
+					matched = false;
+					while (textPos != -1) {
+						matched = true;
+						var highlight = '<span style="background-color:rgb(255,200,64)">'+text.slice(textPos,textPos+query.length)+'</span>';
+						text = text.slice(0,textPos)+highlight+text.slice(textPos+query.length)
+						textPos = text.toLowerCase().indexOf(query,textPos+highlight.length);
+					}
+					text = "<li>"+text+"</li>";
+					if (matched == true) {
+						$("#domain_selector_list").append(text);
+						numfound ++;
+					}
+				}
+				if (numfound < 5) {
+					$("#domain_selector_list").animate ({height:numfound*20});
+				} else {
+					$("#domain_selector_list").animate ({height:100});
+				}
+			};
 		</script>
 	</head>
 	<body onload="toggle_enable(false);">
 		<div class="level1" align="center">
-			<center>AnalyseMe control panel</center>
-			<button id="disable_button" onclick="toggle_enable(true);$('#delete').slideUp();">Enable AnalyseMe</button>
+			<h1>AnalyseMe control panel</h1>
+			<button id="disable_button" onclick="toggle_enable(true);show(0);">Enable AnalyseMe</button>
 			<br>
 			<div id="options" style="display:none;">
 				<div class="level2">
-					<a href="javascript:;" onclick="$('#delete').slideToggle();$('#delete_all').slideUp();$('#delete_some').slideUp();">show/hide delete data</a> (not yet implemented)
+					<a href="javascript:;" onclick="show(1);">show/hide delete data</a> (not yet implemented)
 					<div id="delete" style="display:none;">
-						<button onclick="$('#delete_all').slideToggle();$('#delete_some').slideUp();">show/hide delete all data</button>
-						<br>
+						<div id="delete_all_button">
+							<button onclick="show(2);">delete all data</button>
+							<br>
+						</div>
 						<div id="delete_all" style="display:none;" class="level_warning">
 							Caution, this action will remove all data AnalyseMe has stored.
 							<br>
 							This action is not reversable.
 							<br>
 							<button onclick="alert('opps... this feature has not been implemented yet... Please stay tuned.');">Delete all data</button>
-							<button onclick="$('#delete_all').slideUp();">cancle</button>
+							<button onclick="show(2);">cancle</button>
 						</div>
-						<button onclick="$('#delete_some').slideToggle();$('#delete_all').slideUp();">show/hide delete some data</button>
-						<div id="delete_some" style="display:none;" class="level_infomation">
-							delete infomation from cirtan domain, or from a time period goes here...
+						<div id="delete_some_time_button">
+							<button onclick="show(3);">delete data by time</button>
+							<br>
+						</div>
+						<div id="delete_some_time" style="display:none;" class="level_infomation">
+							delete infomation from a time period goes here...
+							<br>
+							<button onclick="show(3);">cancle</button>
+						</div>
+						<div id="delete_some_dom_button">
+							<button onclick="show(4);">delete data by domain</button>
+							<br>
+						</div>
+						<div id="delete_some_dom" style="display:none;" class="level_infomation">
+							<h2>delete infomation from a domain.</h2>
+							1) select domains from box below. <br>
+							<div id="domain_selector">
+								<input type="textbox" id="domain_selector_input" onkeyup="filterResults();"/>
+								<ul id="domain_selector_list">
+								</ul>
+							</div>
+							2) confirm domains from below. <br>
+							3) <button>delete</button> the domains
+							<br>
+							<button onclick="show(4);">cancle</button>
 						</div>
 					</div>
+				</div>
+				<div id="data" class="level2">
+					other data goes here...
 				</div>
 				<script>
 				chrome.tabs.getSelected(null, function(tab) {
 					$('#data').append(tab);
 				});
 				</script>
-				<div id="data" class="level2">
-					cool
-				</div>
 			</div>
 		</div>
 
